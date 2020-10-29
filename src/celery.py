@@ -30,7 +30,7 @@ celery: Celery = Celery(
     __name__,
     backend=str(environ["CELERY_BACKEND"]),
     broker=str(environ["CELERY_BROKER"]),
-    include=["src.server.tasks"],
+    include=["src.tasks"],
 )
 
 celery.conf.update({"CELERY_RESULT_SERIALIZER": "dataclassjson"})
