@@ -1,0 +1,29 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+black = "==20.8b1"
+flake8 = "*"
+mypy = "*"
+
+[packages]
+celery = "*"
+flask = "*"
+flask-cors = "*"
+python-dotenv = "*"
+waitress = "*"
+
+[requires]
+python_version = "3.8"
+
+[scripts]
+celery = "celery -A src.server.celery worker --loglevel=INFO"
+dev = "flask run --port=5000 --cert=localhost.crt --key=localhost.key --reload --debugger"
+dev-http = "flask run --reload --debugger"
+format = "black -l 80 ."
+lint = "flake8 --max-line-length 80 src"
+prod = "waitress-serve --ident='' --port=8080 src.server:server"
+test = "python -m unittest test"
+typecheck = "mypy --strict src"
