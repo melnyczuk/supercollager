@@ -14,6 +14,7 @@ flask = "*"
 flask-cors = "*"
 python-dotenv = "*"
 waitress = "*"
+redis = "*"
 
 [requires]
 python_version = "3.8"

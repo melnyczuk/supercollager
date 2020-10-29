@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  celery:
+    build: .
+    command: celery -A src.celery worker --loglevel=INFO --uid=nobody --gid=nogroup
+    env_file: .env
+    environment:
+      - CELERY_BROKER=redis://redis:6379/2
+      - CELERY_BACKEND=redis://redis:6379/1
+    depends_on:
+      - redis
+
+  redis:
+    container_name: redis
+    image: redis:6.0.8-alpine
+    ports:
+      - '6379:6379'
