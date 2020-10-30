@@ -14,6 +14,18 @@ class LoadTestCase(TestCase):
                 "test_name", pretrained=pretrained
             ),
 
+    @patch("gluoncv.data.transforms.presets.rcnn.load_test")
+    @patch("gluoncv.utils.download")
+    def test_mxnet_array_from_url(self, mock_download, mock_load_test):
+        mock_download.return_value = "test_path.png"
+        mock_load_test.return_value = ([], [])
+
+        url = "a/url/to/a/img.png"
+        load.mxnet_array_from_url(url)
+
+        mock_download.assert_called_with(url, path="./tmp/img.png")
+        mock_load_test.assert_called_with("test_path.png")
+
 
 class SaveTestCase(TestCase):
     def test_np_to_png_throws_without_dir_and_fname(self):
@@ -23,7 +35,7 @@ class SaveTestCase(TestCase):
         ]:
             self.assertRaises(ValueError, save.np_to_png, [], **kwargs)
 
-    @patch("png.from_array")
+    @patch("PIL.Image.fromarray")
     def test_np_to_png_calls_png_package(self, mock_png_from_array):
         arr = ndarray([2, 3], dtype=int32)
         kwargs = {"dir": "./dir", "fname": "test.png"}
@@ -32,8 +44,8 @@ class SaveTestCase(TestCase):
 
         np_testing.assert_array_equal(mock_png_from_array.call_args[0][0], arr)
 
-    @patch("png.Image")
-    @patch("png.from_array")
+    @patch("PIL.Image")
+    @patch("PIL.Image.fromarray")
     def test_np_to_png_saves_file(self, mock_png_from_array, mock_Image):
         mock_png_from_array.return_value = mock_Image
 
