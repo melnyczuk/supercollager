@@ -10,7 +10,6 @@ from .celery import celery
 from .logger import logger
 from .tasks import a_task
 
-
 routes = Blueprint("controller", __name__)
 
 
