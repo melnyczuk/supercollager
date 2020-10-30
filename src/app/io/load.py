@@ -1,4 +1,3 @@
-# 'faster_rcnn_resnet50_v1b_voc'
 from gluoncv import model_zoo  # type: ignore
 
 
