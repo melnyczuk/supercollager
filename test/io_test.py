@@ -1,8 +1,11 @@
 from unittest import TestCase
 from unittest.mock import patch
+import logging
 from numpy import int32, ndarray, testing as np_testing
 
 from src.app.io import load, save
+
+logging.disable(logging.INFO)
 
 
 class LoadTestCase(TestCase):
@@ -12,7 +15,7 @@ class LoadTestCase(TestCase):
             load.gluoncv_model("test_name", pretrained=pretrained)
             mock_model_zoo.assert_called_with(
                 "test_name", pretrained=pretrained
-            ),
+            )
 
     @patch("gluoncv.data.transforms.presets.rcnn.load_test")
     @patch("gluoncv.utils.download")
