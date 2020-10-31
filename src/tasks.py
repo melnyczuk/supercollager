@@ -1,9 +1,14 @@
-from typing import Any, Dict
+from typing import Any, Dict, List
 
-import src.app as app
+from .app.methods import segmentation
 from .celery import celery
 
 
 @celery.task  # type: ignore
-def a_task(data: Dict[str, Any]) -> int:
-    return 2 * 2
+def segment(data: Dict[str, Any]) -> List[Dict[str, Any]]:
+    if "url" not in data.keys():
+        raise ValueError("url missing")
+    try:
+        return segmentation.from_url(data["url"])
+    except Exception as e:
+        raise e
