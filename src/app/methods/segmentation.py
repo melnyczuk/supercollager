@@ -1,9 +1,9 @@
-from gluoncv import utils  # type: ignore
-from os import path, mkdir
 import pickle
+from os import path, mkdir
+from gluoncv import utils  # type: ignore
 
 import numpy as np
-from numpy import dstack, swapaxes  # type:ignore
+from numpy import dstack  # type:ignore
 
 from src.app.io import save, load
 
@@ -26,7 +26,7 @@ def _segment(
     mxnet_array: List,
     dimensions: Tuple[int, int],
     model_name: str = "mask_rcnn_resnet50_v1b_coco",
-    dump_path: str = "./tmp/segment_data",
+    dump_path: str = "./dump/segment_data",
 ) -> List[Tuple[np.ndarray, str]]:
     (ids, scores, bboxes, masks, entities) = _pickle_memo(
         lambda: _run_net(mxnet_array, model_name),
@@ -64,17 +64,15 @@ def _run_net(
 
 
 def _draw_transparency(rgb: np.ndarray, mask: np.ndarray) -> np.ndarray:
-    mask_3d = swapaxes(swapaxes([mask, mask, mask, mask], 0, 2), 0, 1)
-    alpha = np.full((*rgb.shape[:2], 1), 255.0, dtype=np.uint8)
-    rgba = dstack((rgb, alpha))
-    return rgba * mask_3d
+    alpha = mask * np.full(mask.shape, 255.0, dtype=np.uint8)
+    return dstack((rgb, alpha))
 
 
 def _get_safe_dump_dir(fname: str) -> str:
-    if not path.isdir(f"./tmp/{fname}"):
-        mkdir(f"./tmp/{fname}")
+    if not path.isdir(f"./dump/{fname}"):
+        mkdir(f"./dump/{fname}")
 
-    return f"./tmp/{fname}/dump"
+    return f"./dump/{fname}/dump"
 
 
 def _type_safe_dimensions(img: np.ndarray) -> Tuple[int, int]:
@@ -87,7 +85,7 @@ if __name__ == "__main__":
     from src.logger import logger
 
     url = argv[1]
-    dir = f"./tmp/{url.split('/')[-1].split('.')[0]}"
+    dir = f"./dump/{url.split('/')[-1].split('.')[0]}"
     data = from_url(url)
     logger.log(f"saving {len(data)} imgs")
     for d in data:

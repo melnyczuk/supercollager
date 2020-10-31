@@ -1,5 +1,5 @@
 .env
 .mypy_cache
-tmp
+dump
 __pycache__
 .vscode

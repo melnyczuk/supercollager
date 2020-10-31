@@ -12,9 +12,9 @@ def gluoncv_model(model_name: str, pretrained: bool = True) -> Any:
 
 
 def mxnet_array_from_url(url: str) -> Tuple[List, np.ndarray, str]:
-    tmp_fname = url.split("/")[-1]
+    dump_fname = url.split("/")[-1]
     logger.log(f"downloading {url}")
-    im_fname = utils.download(url, path=f"./tmp/{tmp_fname}")
-    logger.log(f"creating mxnet_array from {tmp_fname}")
+    im_fname = utils.download(url, path=f"./dump/{dump_fname}")
+    logger.log(f"creating mxnet_array from {dump_fname}")
     mx, img = data.transforms.presets.rcnn.load_test(im_fname)
-    return (mx, img, tmp_fname.split(".")[0])
+    return (mx, img, dump_fname.split(".")[0])

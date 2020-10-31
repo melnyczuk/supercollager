@@ -26,7 +26,7 @@ class LoadTestCase(TestCase):
         url = "a/url/to/a/img.png"
         load.mxnet_array_from_url(url)
 
-        mock_download.assert_called_with(url, path="./tmp/img.png")
+        mock_download.assert_called_with(url, path="./dump/img.png")
         mock_load_test.assert_called_with("test_path.png")
 
 
