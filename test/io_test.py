@@ -1,6 +1,6 @@
+import logging
 from unittest import TestCase
 from unittest.mock import patch
-import logging
 from numpy import int32, ndarray, testing as np_testing
 
 from src.app.io import load, save
