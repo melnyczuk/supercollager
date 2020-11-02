@@ -27,6 +27,7 @@ python_version = "3.8"
 
 [scripts]
 celery = "celery -A src.server.celery worker --loglevel=INFO"
+celery-prod = "celery -A src.celery worker --loglevel=INFO --uid=nobody --gid=nogroup"
 dev = "flask run --port=5000 --cert=localhost.crt --key=localhost.key --reload --debugger"
 dev-http = "flask run --reload --debugger"
 format = "black -l 80 ."
