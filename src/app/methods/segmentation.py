@@ -49,7 +49,7 @@ def _run_net(
     model_name: str = "mask_rcnn_resnet50_v1b_coco",
 ) -> Tuple:
     net = load.gluoncv_model(model_name)
-    data = (xx[0].asnumpy() for xx in net(mxnet_array))
+    data = (mx.asnumpy() for [mx] in net(mxnet_array))
     return (*data, net.classes)
 
 
