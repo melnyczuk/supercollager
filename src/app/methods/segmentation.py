@@ -1,13 +1,14 @@
 import pickle
+from random import randint
 from os import path, mkdir
 from gluoncv import utils  # type: ignore
 
 import numpy as np
-from numpy import dstack  # type:ignore
-
-from src.app.io import save, load
+from numpy import dstack as np_dstack, kron as np_kron  # type: ignore
 
 from typing import Callable, List, Tuple
+
+from src.app.io import save, load
 
 
 def from_url(url: str) -> List:
@@ -15,7 +16,10 @@ def from_url(url: str) -> List:
     dimensions = _type_safe_dimensions(img)
     dump_path = _get_safe_dump_dir(fname)
     return [
-        {"label": label, "img": _draw_transparency(img, mask)}
+        {
+            "label": label,
+            "img": _draw_transparency(img, mask, randint(3, 12)),
+        }
         for (mask, label) in _segment(
             mxnet_array, dimensions, dump_path=dump_path
         )
@@ -32,25 +36,11 @@ def _segment(
         lambda: _run_net(mxnet_array, model_name),
         dump_path,
     )
-    exp_masks, _ = utils.viz.expand_mask(masks, bboxes, dimensions, scores)
-    labels = (
-        f"{entities[int(id)]}-{i}"
-        for i, ([id], [score]) in enumerate(zip(ids, scores))
-        if (score > 0.5)
+    exp_masks, id_indexes = utils.viz.expand_mask(
+        masks, bboxes, dimensions, scores
     )
+    labels = (f"{entities[int(ids[i])]}-{i}" for i in id_indexes)
     return [*zip(exp_masks, labels)]
-
-
-# pickle memoization - replace with something more elegant
-def _pickle_memo(fn: Callable, dump_path: str) -> List:
-    if not path.exists(dump_path):
-        dump = fn()
-        with open(dump_path, "wb") as fp:
-            pickle.dump(dump, fp)
-    else:
-        with open(dump_path, "rb") as fp:
-            dump = pickle.load(fp)
-    return dump
 
 
 # Computationally intense
@@ -63,9 +53,32 @@ def _run_net(
     return (*data, net.classes)
 
 
-def _draw_transparency(rgb: np.ndarray, mask: np.ndarray) -> np.ndarray:
-    alpha = mask * np.full(mask.shape, 255.0, dtype=np.uint8)
-    return dstack((rgb, alpha))
+def _draw_transparency(
+    rgb: np.ndarray, mask: np.ndarray, edge_grain: int = 1
+) -> np.ndarray:
+    downsampled_blocky_mask = _block_mat_mask(mask, edge_grain)
+    alpha = downsampled_blocky_mask * np.full(mask.shape, 255.0, dtype=np.uint8)
+    return np_dstack((rgb, alpha))
+
+
+def _block_mat_mask(mask: np.ndarray, scalar: int) -> np.ndarray:
+    if scalar < 1:
+        return mask
+    grain_size_matrix = np.ones([scalar, scalar], dtype=np.uint8)
+    block_matrix_mask = np_kron(mask[::scalar, ::scalar], grain_size_matrix)
+    return block_matrix_mask[: mask.shape[0], : mask.shape[1]]
+
+
+# pickle memoization - replace with something more elegant
+def _pickle_memo(fn: Callable, dump_path: str) -> List:
+    if not path.exists(dump_path):
+        dump = fn()
+        with open(dump_path, "wb") as fp:
+            pickle.dump(dump, fp)
+    else:
+        with open(dump_path, "rb") as fp:
+            dump = pickle.load(fp)
+    return dump
 
 
 def _get_safe_dump_dir(fname: str) -> str:
