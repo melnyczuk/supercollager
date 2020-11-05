@@ -1,15 +1,15 @@
-import logging
+from test.utils import describe, it
 from unittest import TestCase
 import numpy as np
 
 from src.app.func import segmentation
 
-logging.disable(logging.INFO)
-
 
 class SegmentationTestCase(TestCase):
+    @describe
     def test__draw_transparency(self):
-        def it_draws_the_correct_transparency():
+        @it
+        def draws_the_correct_transparency():
             img = np.array(
                 [
                     [[1, 2, 3], [2, 3, 4], [3, 4, 5]],
@@ -36,5 +36,3 @@ class SegmentationTestCase(TestCase):
             )
             output = segmentation._draw_transparency(img, mask)
             np.testing.assert_array_equal(expected, output)
-
-        it_draws_the_correct_transparency()
