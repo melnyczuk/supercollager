@@ -4,15 +4,16 @@ from os import path, mkdir
 from gluoncv import utils  # type: ignore
 
 import numpy as np
-from numpy import dstack as np_dstack, kron as np_kron  # type: ignore
+from numpy import dstack as np_dstack  # type: ignore
 
 from typing import Callable, List, Tuple
 
-from src.app.io import save, load
+from src.app.io import Load
+from src.app.func import masking
 
 
 def from_url(url: str) -> List:
-    (mxnet_array, img, fname) = load.mxnet_array_from_url(url)
+    (mxnet_array, img, fname) = Load.mxnet_array_from_url(url)
     dimensions = _type_safe_dimensions(img)
     dump_path = _get_safe_dump_dir(fname)
     return [
@@ -56,17 +57,9 @@ def _run_net(
 def _draw_transparency(
     rgb: np.ndarray, mask: np.ndarray, edge_grain: int = 1
 ) -> np.ndarray:
-    downsampled_blocky_mask = _block_mat_mask(mask, edge_grain)
+    downsampled_blocky_mask = masking.to_block_mat(mask, edge_grain)
     alpha = downsampled_blocky_mask * np.full(mask.shape, 255.0, dtype=np.uint8)
     return np_dstack((rgb, alpha))
-
-
-def _block_mat_mask(mask: np.ndarray, scalar: int) -> np.ndarray:
-    if scalar < 1:
-        return mask
-    grain_size_matrix = np.ones([scalar, scalar], dtype=np.uint8)
-    block_matrix_mask = np_kron(mask[::scalar, ::scalar], grain_size_matrix)
-    return block_matrix_mask[: mask.shape[0], : mask.shape[1]]
 
 
 # pickle memoization - replace with something more elegant
@@ -96,10 +89,11 @@ def _type_safe_dimensions(img: np.ndarray) -> Tuple[int, int]:
 if __name__ == "__main__":
     from sys import argv
     from src.logger import logger
+    from src.app.io import Save
 
     url = argv[1]
     dir = f"./dump/{url.split('/')[-1].split('.')[0]}"
     data = from_url(url)
     logger.log(f"saving {len(data)} imgs")
     for d in data:
-        save.np_to_png(d["img"], fname=d["label"], dir=dir)
+        Save.np_to_png(d["img"], fname=d["label"], dir=dir)
