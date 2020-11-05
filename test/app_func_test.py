@@ -1,10 +1,8 @@
 import logging
 from unittest import TestCase
-from unittest.mock import patch
 import numpy as np
 
-from src.app.methods import segmentation
-from src.app.methods.segmentation import _block_mat_mask, _draw_transparency
+from src.app.func import segmentation
 
 logging.disable(logging.INFO)
 
@@ -27,7 +25,7 @@ class SegmentationTestCase(TestCase):
                 [3, 3, 5, 5, 7],
             ]
         )
-        output = _block_mat_mask(mask, 2)
+        output = segmentation._block_mat_mask(mask, 2)
         np.testing.assert_array_equal(expected, output)
 
     def test__draw_transparency(self):
@@ -55,5 +53,5 @@ class SegmentationTestCase(TestCase):
                 [[4, 5, 6, 0], [5, 6, 7, 255], [6, 7, 8, 0]],
             ]
         )
-        output = _draw_transparency(img, mask)
+        output = segmentation._draw_transparency(img, mask)
         np.testing.assert_array_equal(expected, output)

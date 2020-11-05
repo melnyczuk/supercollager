@@ -1,6 +1,6 @@
 from typing import Any, Dict, List
 
-from .app.methods import segmentation
+from .app.func import segmentation
 from .celery import celery
 
 
