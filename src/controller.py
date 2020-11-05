@@ -8,18 +8,18 @@ from typing import Any, Tuple, Union
 
 from .celery import celery
 from .logger import logger
-from .tasks import a_task
+from .tasks import segment
 
 routes = Blueprint("controller", __name__)
 
 
-@routes.route("/", methods=["POST"])
-def set_something() -> Tuple[str, int]:
-    return set_task(a_task)
+@routes.route("/segment", methods=["POST"])
+def set_segment() -> Tuple[str, int]:
+    return set_task(segment, request.json)
 
 
-@routes.route("/<id>", methods=["GET"])
-def get_something(id: str) -> Tuple[str, int]:
+@routes.route("/segment/<id>", methods=["GET"])
+def get_segment(id: str) -> Tuple[str, int]:
     return get_task(id)
 
 
@@ -62,9 +62,9 @@ def make_response(
         return (jsonify(), 204)
 
 
-def set_task(task: Celery.task) -> Tuple[str, int]:
+def set_task(task: Celery.task, data: Any) -> Tuple[str, int]:
     try:
-        data = request.json
+        logger.log(f"{data=}")
         result = task.delay(data)
         return make_response(data=result.id, status=202)
     except Exception as e:

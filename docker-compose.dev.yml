@@ -2,7 +2,7 @@ version: '3.8'
 services:
   celery:
     build: .
-    command: celery -A src.celery worker --loglevel=INFO --uid=nobody --gid=nogroup
+    command: pipenv run celery-prod
     env_file: .env
     environment:
       - CELERY_BROKER=redis://redis:6379/2

@@ -3,6 +3,7 @@ from os import environ
 from celery import Celery  # type: ignore
 from kombu.serialization import register  # type: ignore
 from dataclasses import is_dataclass
+import numpy as np
 from typing import Any
 
 
@@ -10,6 +11,8 @@ class DataclassJsonEncoder(json.JSONEncoder):
     def default(self: "DataclassJsonEncoder", obj: Any) -> Any:
         if is_dataclass(obj):
             return obj.__dict__
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
         else:
             return json.JSONEncoder.default(self, obj)
 

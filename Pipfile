@@ -27,10 +27,12 @@ python_version = "3.8"
 
 [scripts]
 celery = "celery -A src.server.celery worker --loglevel=INFO"
+celery-prod = "celery -A src.celery worker --loglevel=INFO --uid=nobody --gid=nogroup"
 dev = "flask run --port=5000 --cert=localhost.crt --key=localhost.key --reload --debugger"
 dev-http = "flask run --reload --debugger"
 format = "black -l 80 ."
 lint = "flake8 --max-line-length 80 src"
 prod = "waitress-serve --ident='' --port=8080 src.server:server"
-test = "python -m unittest discover -s test -p '*_test.py'"
+test = "python -m unittest discover -s test -p '*_test.py' -b"
+test-cleanup = "find . -type f -name '*.pyc' -delete"
 typecheck = "mypy src"
