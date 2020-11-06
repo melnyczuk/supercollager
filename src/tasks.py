@@ -1,6 +1,6 @@
 from typing import Any, Dict, List
 
-from .app.func import segmentation
+from .app import Segmentation
 from .celery import celery
 
 
@@ -9,6 +9,6 @@ def segment(data: Dict[str, Any]) -> List[Dict[str, Any]]:
     if "url" not in data.keys():
         raise ValueError("url missing")
     try:
-        return segmentation.from_url(data["url"])
+        return Segmentation.from_url(data["url"])
     except Exception as e:
         raise e
