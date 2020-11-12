@@ -85,6 +85,5 @@ class ColorsTailCallOptTestCase(TestCase):
         @it
         def returns_a_list_of_unique_ints():
             output = ColorsTailCallOpt._get_rand_indicies(1000)
-            print(output)
             mock_randint.assert_called()
             self.assertListEqual([*range(1000)], output)

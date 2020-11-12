@@ -63,7 +63,6 @@ class ColorsTailCallOpt:
                 )
 
         def tramp(gen, *args, **kwargs):
-            print("here", gen)
             g = gen(*args, **kwargs)
             return next(g) if isinstance(g, GeneratorType) else g
 
