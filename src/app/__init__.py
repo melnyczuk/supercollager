@@ -1,5 +1,7 @@
-from .colors import Colors
-from .composition import Composition
-from .io import IO
-from .masking import Masking
-from .segmentation import Segmentation
+from .colors import Colors  # noqa: F401
+from .composition import Composition  # noqa: F401
+from .io import IO  # noqa: F401
+from .masking import Masking  # noqa: F401
+from .noise import Noise  # noqa: F401
+from .segmentation import Segmentation  # noqa: F401
+from .transformation import Transformation  # noqa: F401

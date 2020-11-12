@@ -1,9 +1,9 @@
 from dataclasses import dataclass
-from .save import Save as _save
-from .load import Load as _load
+from .save import Save
+from .load import Load
 
 
 @dataclass(frozen=True)
 class IO:
-    load = _load
-    save = _save
+    load = Load
+    save = Save
