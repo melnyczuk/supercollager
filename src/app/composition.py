@@ -1,4 +1,4 @@
-from PIL import Image  # type:ignore
+from PIL import Image  # type: ignore
 import numpy as np
 
 from typing import List, Tuple
@@ -10,7 +10,7 @@ class Composition:
         transparencies: List[np.ndarray],
         background: List[int] = [0, 0, 0],
         dtype=np.uint8,
-    ) -> np.ndarray:
+    ) -> Image:
         dimensions = _get_canvas_dimensions(transparencies)
 
         canvas = Image.fromarray(
@@ -48,7 +48,7 @@ class Composition:
                         crop[x][y] if crop[x][y][3] == 255 else canvas[x][y]
                     )
 
-        return canvas
+        return canvas.astype(dtype)
 
 
 def _get_canvas_dimensions(
@@ -72,8 +72,4 @@ def _crop_center(img: np.ndarray, shape: tuple) -> np.ndarray:
     x1 = img.shape[0] - x0
     y0 = y / 2
     y1 = img.shape[1] - y0
-    return img[int(x0) : int(x1), int(y0) : int(y1)]
-
-
-def _pad_edges(img: np.ndarray, shape: Tuple) -> np.ndarray:
-    return img
+    return img[int(x0) : int(x1), int(y0) : int(y1)]  # noqa: E203

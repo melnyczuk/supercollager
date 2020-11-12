@@ -3,10 +3,14 @@ from types import GeneratorType
 
 from src.app.colors.color_lookup import color_lookup
 
-from typing import List, Tuple
+from typing import List
 
 
 class Colors:
+    @staticmethod
+    def pick() -> List[int]:
+        return list(color_lookup.values())[_randIndex()]
+
     @staticmethod
     def as_list(length: int) -> List[List[int]]:
         return [
@@ -26,9 +30,7 @@ class Colors:
             short_fall: List[int] = []
 
             while len(short_fall) < length - len(existing):
-                if (
-                    x := random.randint(0, len(color_lookup) - 1)
-                ) not in existing:
+                if (x := _randIndex()) not in existing:
                     short_fall.append(x)
 
             return existing + short_fall
@@ -54,8 +56,7 @@ class ColorsTailCallOpt:
                 yield tco_existing
             else:
                 short_fall = [
-                    random.randint(0, len(color_lookup) - 1)
-                    for i in range(tco_length - len(tco_existing))
+                    _randIndex() for _ in range(tco_length - len(tco_existing))
                 ]
                 yield ColorsTailCallOpt._get_rand_indicies(
                     tco_length, list(set(tco_existing + short_fall))
@@ -67,3 +68,7 @@ class ColorsTailCallOpt:
             return next(g) if isinstance(g, GeneratorType) else g
 
         return tramp(tco, length, existing)
+
+
+def _randIndex():
+    return random.randint(0, len(color_lookup) - 1)

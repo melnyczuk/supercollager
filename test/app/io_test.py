@@ -1,7 +1,7 @@
 from unittest import TestCase
 from unittest.mock import patch
 from PIL import Image
-from numpy import int32, ndarray, testing as np_testing
+import numpy as np
 
 from test.utils import describe, each, it
 
@@ -23,28 +23,27 @@ class LoadTestCase(TestCase):
     @patch(
         "gluoncv.data.transforms.presets.rcnn.load_test", return_value=([], [])
     )
-    @patch("gluoncv.utils.download", return_value="test_path.png")
+    @patch("gluoncv.utils.download", return_value="img.png")
     @describe
     def test_mxnet_array_from_url(self, mock_download, mock_load_test):
         @it
         def calls_download():
             url = "a/url/to/a/img.png"
             IO.load.mxnet_array_from_url(url)
-            mock_download.assert_called_with(url, path="./dump/img.png")
+            mock_download.assert_called_with(url, path="./dump/input/img.png")
 
         @it
         def calls_load_test():
             url = "a/url/to/a/img.png"
             IO.load.mxnet_array_from_url(url)
-            mock_load_test.assert_called_with("test_path.png")
+            mock_load_test.assert_called_with("img.png")
 
 
 class SaveTestCase(TestCase):
     @patch("PIL.Image")
-    @patch("PIL.Image.fromarray")
     @describe
-    def test_np_array(self, mock_png_from_array, mock_Image):
-        mock_png_from_array.return_value = mock_Image
+    def test_np_array(self, mock_Image):
+        mock_Image.fromarray.return_value = mock_Image
 
         @each(
             [
@@ -56,30 +55,30 @@ class SaveTestCase(TestCase):
             self.assertRaises(ValueError, IO.save.np_array, [], **kwargs)
 
         @it
-        def calls_png_package():
-            arr = ndarray([2, 3], dtype=int32)
-            kwargs = {"dir": "./dir", "fname": "test.png"}
+        def calls_Image_fromarray():
+            arr = np.ones((2, 2, 3), dtype=np.uint8)
+            kwargs = {"dir": "./dir", "fname": "test"}
 
             IO.save.np_array(arr, **kwargs)
-            np_testing.assert_array_equal(
-                mock_png_from_array.call_args[0][0], arr
+            np.testing.assert_array_equal(
+                mock_Image.fromarray.call_args[0][0], arr
             )
 
         @each(["test", "test.png"])
         def saves_a_file_regardless_of_ext(fname):
             IO.save.np_array([], fname=fname, dir="./dir")
-            self.assertEqual(mock_Image.save.call_args[0][0], "./dir/test.png")
+            mock_Image.save.assert_called_with("./dir/test.png")
 
-        @each([".jpg", ".png"])
+        @each(["jpg", "png"])
         def saves_a_file_with_provided_ext(ext):
             IO.save.np_array([], fname="test", dir="./dir", ext=ext)
-            self.assertEqual(
-                mock_Image.save.call_args[0][0], f"./dir/test{ext}"
-            )
+            mock_Image.save.assert_called_with(f"./dir/test.{ext}")
 
     @patch("PIL.Image")
     @describe
     def test_image(self, mock_Image):
+        mock_Image.convert.return_value = mock_Image
+
         @each(
             [
                 {"dir": None, "fname": "test.png"},
@@ -89,16 +88,19 @@ class SaveTestCase(TestCase):
         def throws_without_a_dir_and_a_fname(kwargs):
             self.assertRaises(ValueError, IO.save.image, mock_Image, **kwargs)
 
+        @each([("jpg", "RGB"), ("png", "RGBA")])
+        def calls_convert_with_the_correct_mode(vars):
+            (ext, mode) = vars
+            IO.save.image(mock_Image, fname="test", dir="./dir", ext=ext)
+            mock_Image.convert.assert_called_with(mode)
+
         @each(["test", "test.png"])
         def saves_a_file_regardless_of_ext(fname):
-            IO.save.image(mock_Image, fname=fname, dir="./dir")
-            mock_Image.save.assert_called()
-            self.assertEqual(mock_Image.save.call_args[0][0], "./dir/test.png")
+            IO.save.image(mock_Image, fname=fname, dir="./dir", ext="png")
+            mock_Image.convert.assert_called()
+            mock_Image.save.assert_called_with("./dir/test.png")
 
-        @each([".jpg", ".png"])
+        @each(["jpg", "png"])
         def saves_a_file_with_provided_ext(ext):
             IO.save.image(mock_Image, fname="test", dir="./dir", ext=ext)
-            mock_Image.save.assert_called()
-            self.assertEqual(
-                mock_Image.save.call_args[0][0], f"./dir/test{ext}"
-            )
+            mock_Image.save.assert_called_with(f"./dir/test.{ext}")

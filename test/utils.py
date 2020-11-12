@@ -20,7 +20,11 @@ def each(each=[]):
         each_str = "\n    ".join([str(e) for e in each])
         stdout.write(f"  it {test_name} for each in \n    {each_str} \n")
         for e in each:
-            test(e)
+            try:
+                test(e)
+            except Exception as ex:
+                stdout.write(f"  fail: {test_name} for {each_str} \n")
+                raise ex
 
     return it
 
@@ -28,4 +32,8 @@ def each(each=[]):
 def it(test):
     test_name = test.__name__.replace("_", " ")
     stdout.write(f"  it {test_name} \n")
-    test()
+    try:
+        test()
+    except Exception as ex:
+        stdout.write(f"  fail: {test_name} \n")
+        raise ex
