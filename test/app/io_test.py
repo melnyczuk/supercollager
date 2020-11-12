@@ -1,6 +1,5 @@
 from unittest import TestCase
 from unittest.mock import patch
-from PIL import Image
 import numpy as np
 
 from test.utils import describe, each, it
@@ -40,10 +39,11 @@ class LoadTestCase(TestCase):
 
 
 class SaveTestCase(TestCase):
-    @patch("PIL.Image")
+    @patch("PIL.Image.fromarray")
+    @patch("PIL.Image.Image")
     @describe
-    def test_np_array(self, mock_Image):
-        mock_Image.fromarray.return_value = mock_Image
+    def test_np_array(self, mock_Image, mock_Image_fromarray):
+        mock_Image_fromarray.return_value = mock_Image
 
         @each(
             [
@@ -56,22 +56,22 @@ class SaveTestCase(TestCase):
 
         @it
         def calls_Image_fromarray():
-            arr = np.ones((2, 2, 3), dtype=np.uint8)
-            kwargs = {"dir": "./dir", "fname": "test"}
-
+            arr = np.ones((2, 2, 3), dtype=np.uint8) * 255
+            kwargs = {"dir": "./dir", "fname": "test", "ext": "jpeg"}
             IO.save.np_array(arr, **kwargs)
-            np.testing.assert_array_equal(
-                mock_Image.fromarray.call_args[0][0], arr
-            )
+            call = mock_Image_fromarray.call_args[0][0]
+            np.testing.assert_array_equal(call, arr)
 
         @each(["test", "test.png"])
         def saves_a_file_regardless_of_ext(fname):
-            IO.save.np_array([], fname=fname, dir="./dir")
+            arr = np.ones((2, 2, 3), dtype=np.uint8) * 255
+            IO.save.np_array(arr, fname=fname, dir="./dir", ext="png")
             mock_Image.save.assert_called_with("./dir/test.png")
 
-        @each(["jpg", "png"])
+        @each(["jpeg", "png"])
         def saves_a_file_with_provided_ext(ext):
-            IO.save.np_array([], fname="test", dir="./dir", ext=ext)
+            arr = np.ones((2, 2, 3), dtype=np.uint8) * 255
+            IO.save.np_array(arr, fname="test", dir="./dir", ext=ext)
             mock_Image.save.assert_called_with(f"./dir/test.{ext}")
 
     @patch("PIL.Image")

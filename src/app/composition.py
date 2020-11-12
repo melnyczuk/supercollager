@@ -66,10 +66,7 @@ def _get_canvas_dimensions(
 
 
 def _crop_center(img: np.ndarray, shape: tuple) -> np.ndarray:
-    x = img.shape[0] - shape[0]
-    y = img.shape[1] - shape[1]
-    x0 = x / 2
-    x1 = img.shape[0] - x0
-    y0 = y / 2
-    y1 = img.shape[1] - y0
-    return img[int(x0) : int(x1), int(y0) : int(y1)]  # noqa: E203
+    diff = (img.shape[0] - shape[0], img.shape[1] - shape[1])
+    x = (_ := int(diff[0] / 2), img.shape[0] - _)
+    y = (_ := int(diff[1] / 2), img.shape[1] - _)
+    return img[x[0] : x[1], y[0] : y[1]]  # noqa: E203
