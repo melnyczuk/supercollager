@@ -7,10 +7,9 @@ from ..logger import logger
 
 
 def segment(uris: List[str], smooth: bool = False) -> List[Image.Image]:
-    imgs = Segmentation.mask_rcnn(uris, smooth)
-    rgbas = [
+    imgs = [
         Masking.stack_alpha(analysed_img.img, analysed_img.mask)
-        for analysed_img in imgs
+        for analysed_img in Segmentation.mask_rcnn(uris, smooth)
     ]
-    logger.log(f"segmented {len(rgbas)} images from {len(uris)} URIs")
-    return [Image.fromarray(rgba) for rgba in rgbas]
+    logger.log(f"segmented {len(imgs)} images from {len(uris)} URIs")
+    return [Image.fromarray(img) for img in imgs]
