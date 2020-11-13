@@ -18,9 +18,11 @@ gluoncv = "*"
 matplotlib = "*"
 mxnet = "*"
 numpy = "*"
+opencv-python = "*"
 pypng = "*"
 python-dotenv = "*"
 redis = "*"
+tqdm = "*"
 waitress = "*"
 
 [requires]
