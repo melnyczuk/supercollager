@@ -1,17 +1,18 @@
+from test.utils import describe, each, it
 from unittest import TestCase
+from unittest.mock import patch
+
 import numpy as np
-
-from test.utils import describe, it
-
 from src.app import Masking
 
 
 class MaskingTestCase(TestCase):
+    @patch("random.randint", return_value=2)
     @describe
-    def test_to_block_mat(self):
-        @it
-        def produces_a_block_matrix():
-            mask = np.array(
+    def test_to_block_mat(self, mock_randint):
+        @each([True, False])
+        def produces_a_block_matrix_if_smooth_is_False(smooth):
+            input = np.array(
                 [
                     [1, 2, 3, 4, 5],
                     [2, 3, 4, 5, 6],
@@ -19,7 +20,7 @@ class MaskingTestCase(TestCase):
                     [4, 5, 6, 7, 8],
                 ]
             )
-            expected = np.array(
+            block = np.array(
                 [
                     [1, 1, 3, 3, 5],
                     [1, 1, 3, 3, 5],
@@ -27,21 +28,9 @@ class MaskingTestCase(TestCase):
                     [3, 3, 5, 5, 7],
                 ]
             )
-            output = Masking.to_block_mat(mask, 2)
+            output = Masking.to_block_mat(input, smooth)
+            expected = input if smooth else block
             np.testing.assert_array_equal(expected, output)
-
-        @it
-        def returns_the_mask_as_is_if_scale_is_1_or_less():
-            mask = np.array(
-                [
-                    [1, 2, 3, 4, 5],
-                    [2, 3, 4, 5, 6],
-                    [3, 4, 5, 6, 7],
-                    [4, 5, 6, 7, 8],
-                ]
-            )
-            output = Masking.to_block_mat(mask, 1)
-            np.testing.assert_array_equal(mask, output)
 
     @describe
     def test_to_rgba(self):
@@ -84,7 +73,7 @@ class MaskingTestCase(TestCase):
             np.testing.assert_array_equal(expected, output)
 
     @describe
-    def test_draw_transparency(self):
+    def test_stack_alpha(self):
         @it
         def draws_the_correct_transparency():
             img = np.array(
@@ -111,5 +100,5 @@ class MaskingTestCase(TestCase):
                     [[4, 5, 6, 0], [5, 6, 7, 255], [6, 7, 8, 0]],
                 ]
             )
-            output = Masking.draw_transparency(img, mask)
+            output = Masking.stack_alpha(img, mask)
             np.testing.assert_array_equal(expected, output)

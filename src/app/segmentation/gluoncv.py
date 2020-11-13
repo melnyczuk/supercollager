@@ -1,36 +1,34 @@
 import os
-from dataclasses import dataclass
 import pickle
-from random import randint
-import numpy as np
-from gluoncv import utils  # type: ignore
-
 from typing import Any, Callable, List, Tuple
 
-from src.app.io import IO
-from src.app.masking import Masking
+import numpy as np
 
+from gluoncv import utils  # type: ignore
 
-@dataclass
-class AnalysedImage:
-    label: str
-    img: np.ndarray
-    mask: np.ndarray
+from ..io import IO
+from ..masking import Masking
+from .types import AnalysedImage
 
 
 class GluonCVSegmentation:
     @staticmethod
-    def run(resource: str, block_size: int = 0) -> List[AnalysedImage]:
-        fn = (
-            IO.load.mxnet_array_from_url
-            if resource.startswith("http")
-            else IO.load.mxnet_array_from_path
-        )
-        return _get_masks_and_labels(*fn(resource), block_size=block_size)
+    def run(resources: List[str], smooth: bool = False) -> List[AnalysedImage]:
+        return [
+            analysed_image
+            for resource in resources
+            for analysed_image in _get_masks_and_labels(
+                *IO.load.mxnet_array(resource),
+                smooth=smooth,
+            )
+        ]
 
 
 def _get_masks_and_labels(
-    mxnet_array: List, img: np.ndarray, fname: str, block_size: int = 0
+    mxnet_array: List,
+    img: np.ndarray,
+    fname: str,
+    smooth: bool = False,
 ) -> List[AnalysedImage]:
     dimensions = _type_safe_dimensions(img)
     dump_path = f"./dump/pickles/{fname}.dump"
@@ -39,16 +37,9 @@ def _get_masks_and_labels(
         AnalysedImage(
             label=label,
             img=img,
-            mask=Masking.to_block_mat(
-                mask,
-                (lambda: block_size if block_size != 0 else randint(3, 12))(),
-            ),
+            mask=Masking.to_block_mat(mask, smooth),
         )
-        for (mask, label) in _segment(
-            mxnet_array,
-            dimensions,
-            dump_path=dump_path,
-        )
+        for (mask, label) in _segment(mxnet_array, dimensions, dump_path)
     ]
 
 

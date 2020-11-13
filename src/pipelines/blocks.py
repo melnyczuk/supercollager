@@ -1,18 +1,16 @@
-import os
 from datetime import datetime
-from src.app.transformation import Transformation
+from typing import List
 
-from src.logger import logger
-from src.app import (
+from ..app import (
+    IO,
     Colors,
     Composition,
-    IO,
     Masking,
     Noise,
     Segmentation,
+    Transformation,
 )
-
-from typing import List
+from ..logger import logger
 
 
 def blocks(
@@ -23,9 +21,7 @@ def blocks(
 ) -> None:
     masks = [
         analysed_img.mask
-        for uri in uris
-        if os.path.exists(uri)
-        for analysed_img in Segmentation.gluoncv(uri, block_size=int(smooth))
+        for analysed_img in Segmentation.mask_rcnn(uris, smooth=smooth)
     ]
     masks.sort(key=lambda x: x.size)
     [background, *color_list] = Colors.as_list(n + 1)
@@ -38,6 +34,5 @@ def blocks(
 
     output = Noise.salt_pepper(big, 0.05)
 
-    now = datetime.now().strftime("%Y%d%m-%H:%M:%S")
-    logger.log(f"saving image to {dir}/{now}.jpg")
+    now = datetime.now().strftime("%Y%m%d-%H:%M:%S")
     IO.save.np_array(output, fname=now, dir=dir, ext=".jpg")
