@@ -1,15 +1,15 @@
-from typing import List, Tuple
+from typing import Iterable, Tuple
 
 import numpy as np
-from PIL import Image
+from PIL import Image  # type: ignore
 from tqdm.std import tqdm  # type: ignore
 
 
 class Composition:
     @staticmethod
     def layer_to_image(
-        transparencies: List[np.ndarray],
-        background: List[int] = [0, 0, 0],
+        transparencies: Iterable[np.ndarray],
+        background: Tuple[int, int, int] = (0, 0, 0),
         dtype=np.uint8,
     ) -> Image:
         dimensions = _get_canvas_dimensions(transparencies)
@@ -29,8 +29,8 @@ class Composition:
 
     @staticmethod
     def layer_to_np(
-        transparencies: List[np.ndarray],
-        background: List[int] = [0, 0, 0],
+        transparencies: Iterable[np.ndarray],
+        background: Tuple[int, int, int] = (0, 0, 0),
         dtype=np.uint8,
     ) -> np.ndarray:
         dimensions = _get_canvas_dimensions(transparencies)
@@ -53,7 +53,7 @@ class Composition:
 
 
 def _get_canvas_dimensions(
-    imgs: List[np.ndarray], reverse=False
+    imgs: Iterable[np.ndarray], reverse: bool = False
 ) -> Tuple[int, int]:
     shapes = [a.shape for a in imgs]
 
@@ -66,7 +66,7 @@ def _get_canvas_dimensions(
     return (width, height)
 
 
-def _crop_center(img: np.ndarray, shape: tuple) -> np.ndarray:
+def _crop_center(img: np.ndarray, shape: Tuple[int, int]) -> np.ndarray:
     diff = (img.shape[0] - shape[0], img.shape[1] - shape[1])
     x = (_ := int(diff[0] / 2), img.shape[0] - _)
     y = (_ := int(diff[1] / 2), img.shape[1] - _)

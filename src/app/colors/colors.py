@@ -1,17 +1,18 @@
 import random
-from types import GeneratorType
-from typing import List
+from typing import List, Tuple
 
 from .color_lookup import color_lookup
+
+ColorType = Tuple[int, int, int]
 
 
 class Colors:
     @staticmethod
-    def pick() -> List[int]:
+    def pick() -> ColorType:
         return list(color_lookup.values())[_randIndex()]
 
     @staticmethod
-    def as_list(length: int) -> List[List[int]]:
+    def as_list(length: int) -> List[ColorType]:
         return [
             list(color_lookup.values())[i]
             for i in (
@@ -35,38 +36,5 @@ class Colors:
             return existing + short_fall
 
 
-# tail call optimisations: for fun!
-
-
-class ColorsTailCallOpt:
-    @staticmethod
-    def as_list(length: int) -> List[List[int]]:
-        indicies = (
-            ColorsTailCallOpt._get_rand_indicies(length)
-            if length < len(color_lookup)
-            else ColorsTailCallOpt._get_rand_indicies(len(color_lookup))
-        )
-        return [list(color_lookup.values())[i] for i in indicies]
-
-    @staticmethod
-    def _get_rand_indicies(length: int, existing: List[int] = []) -> List[int]:
-        def tco(tco_length: int, tco_existing: List[int] = []):
-            if len(tco_existing) == tco_length:
-                yield tco_existing
-            else:
-                short_fall = [
-                    _randIndex() for _ in range(tco_length - len(tco_existing))
-                ]
-                yield ColorsTailCallOpt._get_rand_indicies(
-                    tco_length, list(set(tco_existing + short_fall))
-                )
-
-        def tramp(gen, *args, **kwargs):
-            g = gen(*args, **kwargs)
-            return next(g) if isinstance(g, GeneratorType) else g
-
-        return tramp(tco, length, existing)
-
-
-def _randIndex():
+def _randIndex() -> int:
     return random.randint(0, len(color_lookup) - 1)
