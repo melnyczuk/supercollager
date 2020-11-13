@@ -1,3 +1,4 @@
+from PIL import Image
 import numpy as np
 
 from ..logger import logger
@@ -15,3 +16,8 @@ class Transformation:
         big[0::scalar, 1::scalar] = arr
         big[1::scalar, 0::scalar] = arr
         return big.astype(np.uint8)
+
+    @staticmethod
+    def rotate(mask: np.ndarray, rotation: float = 0.0):
+        rot = Image.fromarray(mask).rotate(rotation).resize(mask.shape[::-1])
+        return np.array(rot)
