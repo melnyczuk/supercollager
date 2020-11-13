@@ -1,8 +1,8 @@
+from test.utils import describe, each, it
 from unittest import TestCase
 from unittest.mock import patch
-import numpy as np
 
-from test.utils import describe, each, it
+import numpy as np
 
 from src.app import IO
 
@@ -24,18 +24,31 @@ class LoadTestCase(TestCase):
     )
     @patch("gluoncv.utils.download", return_value="img.png")
     @describe
-    def test_mxnet_array_from_url(self, mock_download, mock_load_test):
-        @it
-        def calls_download():
-            url = "a/url/to/a/img.png"
-            IO.load.mxnet_array_from_url(url)
-            mock_download.assert_called_with(url, path="./dump/input/img.png")
+    def test_mxnet_array(self, mock_download, mock_load_test):
+        @each(
+            [["https://url/to/a/img.png", True], ["a/path/to/a/img.png", False]]
+        )
+        def calls_download(args):
+            mock_download.reset_mock()
+            [uri, calls_download] = args
+            IO.load.mxnet_array(uri)
+            if calls_download:
+                mock_download.assert_called_with(
+                    uri, path="./dump/input/img.png"
+                )
+            else:
+                mock_download.assert_not_called()
 
-        @it
-        def calls_load_test():
-            url = "a/url/to/a/img.png"
-            IO.load.mxnet_array_from_url(url)
-            mock_load_test.assert_called_with("img.png")
+        @each(
+            [
+                ["https://url/to/a/img.png", mock_download.return_value],
+                ["a/path/to/a/img.png", "a/path/to/a/img.png"],
+            ]
+        )
+        def calls_load_test(args):
+            (uri, expected) = args
+            IO.load.mxnet_array(uri)
+            mock_load_test.assert_called_with(expected)
 
 
 class SaveTestCase(TestCase):
