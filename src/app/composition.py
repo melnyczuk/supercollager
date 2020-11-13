@@ -1,7 +1,8 @@
-from PIL import Image  # type: ignore
-import numpy as np
-
 from typing import List, Tuple
+
+import numpy as np
+from PIL import Image
+from tqdm.std import tqdm  # type: ignore
 
 
 class Composition:
@@ -40,12 +41,12 @@ class Composition:
             dtype=dtype,
         )
 
-        for layer in transparencies:
+        for layer in tqdm(transparencies):
             for x in range(canvas.shape[0]):
                 for y in range(canvas.shape[1]):
                     crop = _crop_center(layer, dimensions)
                     canvas[x][y] = (
-                        crop[x][y] if crop[x][y][3] == 255 else canvas[x][y]
+                        crop[x][y] if crop[x][y][3] > 50 else canvas[x][y]
                     )
 
         return canvas.astype(dtype)

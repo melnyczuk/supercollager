@@ -1,10 +1,12 @@
 import json
-from os import environ
-from celery import Celery  # type: ignore
-from kombu.serialization import register  # type: ignore
 from dataclasses import is_dataclass
-import numpy as np
+from os import environ
 from typing import Any
+
+import numpy as np
+from kombu.serialization import register  # type: ignore
+
+from celery import Celery  # type: ignore
 
 
 class DataclassJsonEncoder(json.JSONEncoder):

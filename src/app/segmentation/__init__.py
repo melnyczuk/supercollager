@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+
 from .gluoncv import GluonCVSegmentation
 from .mask_rcnn import MaskRCNNSegmentation
 

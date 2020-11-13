@@ -1,9 +1,8 @@
 import random
 from types import GeneratorType
-
-from src.app.colors.color_lookup import color_lookup
-
 from typing import List
+
+from .color_lookup import color_lookup
 
 
 class Colors:

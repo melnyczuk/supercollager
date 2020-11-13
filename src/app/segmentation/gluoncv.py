@@ -3,7 +3,6 @@ import pickle
 from typing import Any, Callable, List, Tuple
 
 import numpy as np
-
 from gluoncv import utils  # type: ignore
 
 from ..io import IO

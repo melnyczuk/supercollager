@@ -4,7 +4,7 @@ from typing import Any, Iterable, List, Tuple
 
 import cv2  # type:ignore
 import numpy as np
-from PIL import Image
+from PIL import Image  # type: ignore
 from tqdm.std import tqdm  # type:ignore
 
 from ..masking import Masking

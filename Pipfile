@@ -5,9 +5,10 @@ verify_ssl = true
 
 [dev-packages]
 black = "==20.8b1"
-flake8 = "*"
-mypy = "*"
 data-science-types = "*"
+flake8 = "*"
+isort = "*"
+mypy = "*"
 
 [packages]
 celery = "*"
@@ -37,6 +38,7 @@ dev-http = "flask run --reload --debugger"
 format = "black -l 80 ."
 lint = "flake8 --max-line-length 80 src"
 prod = "waitress-serve --ident='' --port=8080 src.server:server"
+sort = "isort ."
 test = "python -m unittest discover -s test -p '*_test.py' -b"
 test-cleanup = "find . -type f -name '*.pyc' -delete"
 typecheck = "mypy src"

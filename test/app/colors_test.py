@@ -1,9 +1,7 @@
 from random import randint
-from src.app.colors.colors import ColorsTailCallOpt
+from test.utils import describe, each, it
 from unittest import TestCase
 from unittest.mock import patch
-
-from test.utils import describe, each, it
 
 from src.app import Colors
 from src.app.colors import ColorsTailCallOpt, color_lookup
