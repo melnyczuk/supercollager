@@ -1,9 +1,7 @@
 from dataclasses import dataclass
-from typing import Generic, TypeVar, Union
+from typing import Generic, Tuple, TypeVar, Union
 
 from numpy import ndarray
-
-T = TypeVar("T")
 
 
 @dataclass
@@ -14,16 +12,17 @@ class AnalysedImage:
 
 
 @dataclass
-class Bounds(Generic[T]):
-    left: T
-    top: T
-    right: T
-    bottom: T
+class Bounds:
+    left: int
+    top: int
+    right: int
+    bottom: int
 
 
 @dataclass
-class MaskBox(Generic[T]):
-    classId: T
-    score: T
+class MaskBox:
+    frame: Tuple[int, int]
+    classId: int
+    score: float
     mask: ndarray
-    bounds: Bounds[T]
+    bounds: Bounds

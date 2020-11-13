@@ -21,19 +21,10 @@ class Masking:
 
     @staticmethod
     def to_rgba(mask: np.ndarray, color_list: List[int]) -> np.ndarray:
-        color = np.array(color_list, dtype=mask.dtype)  # type: ignore
-        rgb = np.full(
-            (*mask.shape, color.size),
-            color,
-            dtype=mask.dtype,  # type: ignore
-        )
+        color = np.array(color_list)  # type: ignore
+        rgb = np.full((*mask.shape, color.size), color)
         return Masking.stack_alpha(rgb, mask)
 
     @staticmethod
     def stack_alpha(rgb: np.ndarray, alpha: np.ndarray) -> np.ndarray:
-        alpha = alpha * np.full(
-            alpha.shape,
-            255.0,
-            dtype=rgb.dtype,  # type: ignore
-        )
-        return np.dstack((rgb, alpha))  # type: ignore
+        return np.dstack((rgb, alpha * 255))

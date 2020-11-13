@@ -18,6 +18,7 @@ def blocks(
     uris: List[str] = [],
     smooth: bool = False,
     n: int = 5,
+    aspect: float = 1.0,
 ) -> List[Image.Image]:
     masks = [
         analysed_img.mask
@@ -30,6 +31,6 @@ def blocks(
         Masking.to_rgba(mask, color_list[i])
         for i, mask in tqdm(enumerate(masks[:n]))
     ]
-    comp = Composition.layer_to_np(blocks, background)
+    comp = Composition.layer_to_np(blocks, background, aspect)
     big = Transformation.scale_up_nparray(comp, 2)
     return [Noise.salt_pepper(big, 0.05)]

@@ -8,66 +8,55 @@ from tqdm.std import tqdm  # type: ignore
 class Composition:
     @staticmethod
     def layer_to_image(
-        transparencies: Iterable[np.ndarray],
+        layers: Iterable[np.ndarray],
         background: Tuple[int, int, int] = (0, 0, 0),
-        dtype=np.uint8,
+        aspect: float = 1.0,
     ) -> Image:
-        dimensions = _get_canvas_dimensions(transparencies)
-
-        canvas = Image.fromarray(
-            np.full(
-                (*dimensions, 4),
-                np.array([*background, 255]),
-                dtype=dtype,
-            )
-        )
-
-        crops = [_crop_center(layer, dimensions) for layer in transparencies]
-        imgs = [Image.fromarray(crop.astype(dtype)) for crop in crops]
-        [canvas.alpha_composite(img) for img in imgs]
+        canvas = _get_canvas(layers, background=background, aspect=aspect)
+        for lay in layers:
+            img = Image.fromarray(lay.astype(np.uint8))
+            canvas.alpha_composite(img)
         return canvas
 
     @staticmethod
     def layer_to_np(
-        transparencies: Iterable[np.ndarray],
+        layers: Iterable[np.ndarray],
         background: Tuple[int, int, int] = (0, 0, 0),
-        dtype=np.uint8,
+        aspect: float = 1.0,
     ) -> np.ndarray:
-        dimensions = _get_canvas_dimensions(transparencies)
+        canvas = _get_canvas(layers, background=background, aspect=aspect)
 
-        canvas = np.full(
-            (*dimensions, 4),
-            np.array([*background, 255]),
-            dtype=dtype,
-        )
-
-        for layer in tqdm(transparencies):
+        for layer in tqdm(layers):
             for x in range(canvas.shape[0]):
                 for y in range(canvas.shape[1]):
-                    crop = _crop_center(layer, dimensions)
                     canvas[x][y] = (
-                        crop[x][y] if crop[x][y][3] > 50 else canvas[x][y]
+                        layer[x][y] if layer[x][y][3] > 50 else canvas[x][y]
                     )
 
-        return canvas.astype(dtype)
+        return canvas.astype(
+            np.uint8,
+        )
 
 
-def _get_canvas_dimensions(
-    imgs: Iterable[np.ndarray], reverse: bool = False
+def _get_canvas(
+    layers: Iterable[np.ndarray],
+    background: Tuple[int, int, int] = (0, 0, 0),
+    aspect: float = 1.0,
+) -> np.ndarray:
+    return Image.fromarray(
+        np.full(
+            (*_get_canvas_shape(layers, aspect), 4),
+            np.array([*background, 255]),
+            dtype=np.uint8,
+        )
+    )
+
+
+def _get_canvas_shape(
+    imgs: Iterable[np.ndarray], aspect: float = 1.0
 ) -> Tuple[int, int]:
-    shapes = [a.shape for a in imgs]
-
-    shapes.sort(reverse=reverse, key=(lambda a: a[0]))
-    width = shapes[0][0]
-
-    shapes.sort(reverse=reverse, key=(lambda a: a[1]))
-    height = shapes[0][1]
-
-    return (width, height)
-
-
-def _crop_center(img: np.ndarray, shape: Tuple[int, int]) -> np.ndarray:
-    diff = (img.shape[0] - shape[0], img.shape[1] - shape[1])
-    x = (_ := int(diff[0] / 2), img.shape[0] - _)
-    y = (_ := int(diff[1] / 2), img.shape[1] - _)
-    return img[x[0] : x[1], y[0] : y[1]]  # noqa: E203
+    edge_lengths = [n for a in imgs for n in a.shape]
+    edge_lengths.sort(reverse=True)
+    height = edge_lengths[0]
+    width = int(height * aspect)
+    return (height, width)

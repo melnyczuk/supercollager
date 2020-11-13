@@ -3,7 +3,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from src.app.composition import _get_canvas_dimensions
+from src.app.composition import _get_canvas_shape
 
 
 class CompositionTestCase(TestCase):
@@ -18,7 +18,7 @@ class CompositionTestCase(TestCase):
                 np.zeros((16, 45)),
                 np.zeros((31, 90)),
             ]
-            output = _get_canvas_dimensions(imgs, reverse=True)
+            output = _get_canvas_shape(imgs, reverse=True)
             np.testing.assert_array_equal((92, 90), output)
 
         @it
@@ -30,5 +30,5 @@ class CompositionTestCase(TestCase):
                 np.zeros((16, 45)),
                 np.zeros((31, 90)),
             ]
-            output = _get_canvas_dimensions(imgs, reverse=False)
+            output = _get_canvas_shape(imgs, reverse=False)
             np.testing.assert_array_equal((16, 34), output)
