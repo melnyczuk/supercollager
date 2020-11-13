@@ -5,5 +5,4 @@ __pycache__
 .vscode
 *.pyc
 *.ds_store
-weights/**
-!*.zip
+weights
