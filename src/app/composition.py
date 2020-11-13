@@ -13,7 +13,7 @@ class Composition:
         aspect: float = 1.0,
     ) -> Image:
         canvas = _get_canvas(layers, background=background, aspect=aspect)
-        for lay in layers:
+        for lay in tqdm(layers):
             img = Image.fromarray(lay.astype(np.uint8))
             canvas.alpha_composite(img)
         return canvas

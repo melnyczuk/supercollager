@@ -1,7 +1,10 @@
 from datetime import datetime
 
+from tqdm import tqdm  # type:ignore
+
 from . import pipelines
 from .app.io import IO
+from .logger import logger
 
 
 def save(fn):
@@ -12,7 +15,9 @@ def save(fn):
         fname = kwargs.pop("fname", now)
         ext = kwargs.pop("ext", "png")
 
-        for i, img in enumerate(fn(*args, **kwargs)):
+        logger.log(f"saving images to {dir}")
+
+        for i, img in enumerate(tqdm(fn(*args, **kwargs))):
             IO.save.image(
                 img,
                 fname=f"{fname}-{i}",

@@ -1,6 +1,6 @@
 import os
 from dataclasses import dataclass
-from typing import Any, Iterable, List, Tuple
+from typing import Any, List, Tuple
 
 import cv2  # type:ignore
 import numpy as np
@@ -30,7 +30,7 @@ class MaskRCNNSegmentation:
     @staticmethod
     def run(
         uris: List[str],
-        smooth: bool = False,
+        blocky: bool = False,
     ) -> List[AnalysedImage]:
         imgs = [Image.open(uri) for uri in uris]
         return [
@@ -38,7 +38,7 @@ class MaskRCNNSegmentation:
                 img=np.array(img, dtype=np.uint8),
                 mask=Masking.to_block_mat(
                     _process_mask(mb),
-                    smooth,
+                    blocky,
                 ).astype(np.uint8),
             )
             for img in tqdm(imgs)
@@ -61,7 +61,7 @@ def _get_blob(img: Image) -> Any:
 
 def _match_masks_to_boxes(
     frame: Tuple[int, int],
-    detection_masks: Iterable[Tuple[np.ndarray, np.ndarray]],
+    detection_masks: List[Tuple[np.ndarray, np.ndarray]],
     thresh: float = 0.0,
 ) -> List[MaskBox]:
     return [

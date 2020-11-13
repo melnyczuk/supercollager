@@ -1,13 +1,13 @@
 import random
-from typing import List
+from typing import Tuple
 
 import numpy as np
 
 
 class Masking:
     @staticmethod
-    def to_block_mat(mask: np.ndarray, smooth: bool = False) -> np.ndarray:
-        if smooth:
+    def to_block_mat(mask: np.ndarray, blocky: bool = False) -> np.ndarray:
+        if not blocky:
             return mask
 
         scalar = random.randint(3, 12)
@@ -20,7 +20,9 @@ class Masking:
         return block_matrix_mask[: mask.shape[0], : mask.shape[1]]
 
     @staticmethod
-    def to_rgba(mask: np.ndarray, color_list: List[int]) -> np.ndarray:
+    def to_rgba(
+        mask: np.ndarray, color_list: Tuple[int, int, int]
+    ) -> np.ndarray:
         color = np.array(color_list)  # type: ignore
         rgb = np.full((*mask.shape, color.size), color)
         return Masking.stack_alpha(rgb, mask)
