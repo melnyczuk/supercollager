@@ -27,4 +27,4 @@ class Masking:
 
     @staticmethod
     def stack_alpha(rgb: np.ndarray, alpha: np.ndarray) -> np.ndarray:
-        return np.dstack((rgb, alpha * 255))
+        return np.dstack((rgb, alpha * 255))  # type:ignore

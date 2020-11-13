@@ -104,7 +104,7 @@ def _invert_mask(mask: np.ndarray, thresh: float = 0.0) -> np.ndarray:
     return np.full(int_mask.shape, 255, dtype=np.uint8) - int_mask
 
 
-def _calc_bounds(frame: Tuple[int], box: np.ndarray) -> Bounds:
+def _calc_bounds(frame: Tuple[int, int], box: np.ndarray) -> Bounds:
     def min_max(shape_dim, box_index):
         return max(0, min(int(shape_dim * box_index), shape_dim - 1))
 

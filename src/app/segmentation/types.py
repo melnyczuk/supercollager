@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Generic, Tuple, TypeVar, Union
+from typing import Tuple, Union
 
 from numpy import ndarray
 
