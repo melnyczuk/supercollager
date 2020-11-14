@@ -24,7 +24,7 @@ class Load:
     @staticmethod
     def np_array(path: str) -> np.ndarray:
         img = Load.image(path)
-        return np.array(img.getdata())
+        return np.array(img)
 
     @staticmethod
     def gluoncv_model(model_name: str, pretrained: bool = True) -> Any:
@@ -40,5 +40,5 @@ class Load:
             uri = utils.download(uri, path=f"./dump/input/{dump_fname}")
 
         logger.log(f"creating mxnet_array from {dump_fname}")
-        mx, img = data.transforms.presets.rcnn.load_test(uri)
+        (mx, img) = data.transforms.presets.rcnn.load_test(uri)
         return (mx, img, dump_fname.split(".")[0])

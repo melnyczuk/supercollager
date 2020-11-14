@@ -3,7 +3,7 @@ from datetime import datetime
 from tqdm import tqdm  # type:ignore
 
 from . import pipelines
-from .app.io import IO
+from .app import IO
 from .logger import logger
 
 
@@ -19,7 +19,7 @@ def save(fn):
 
         for i, img in enumerate(tqdm(fn(*args, **kwargs))):
             IO.save.image(
-                img,
+                img=img,
                 fname=f"{fname}-{i}",
                 dir=dir,
                 ext=ext,

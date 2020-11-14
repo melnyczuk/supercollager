@@ -3,7 +3,7 @@ import pickle
 from typing import Any, Callable, List, Tuple
 
 import numpy as np
-from gluoncv import utils  # type: ignore
+from gluoncv import utils  # type:ignore
 
 from ..io import IO
 from ..masking import Masking
@@ -12,13 +12,13 @@ from .types import AnalysedImage
 
 class GluonCVSegmentation:
     @staticmethod
-    def run(resources: List[str], smooth: bool = False) -> List[AnalysedImage]:
+    def run(resources: List[str], blocky: bool = False) -> List[AnalysedImage]:
         return [
             analysed_image
             for resource in resources
             for analysed_image in _get_masks_and_labels(
                 *IO.load.mxnet_array(resource),
-                smooth=smooth,
+                blocky=blocky,
             )
         ]
 
@@ -27,7 +27,7 @@ def _get_masks_and_labels(
     mxnet_array: List,
     img: np.ndarray,
     fname: str,
-    smooth: bool = False,
+    blocky: bool = False,
 ) -> List[AnalysedImage]:
     dimensions = _type_safe_dimensions(img)
     dump_path = f"./dump/pickles/{fname}.dump"
@@ -36,7 +36,7 @@ def _get_masks_and_labels(
         AnalysedImage(
             label=label,
             img=img,
-            mask=Masking.to_block_mat(mask, smooth),
+            mask=Masking.to_block_mat(mask, blocky=blocky),
         )
         for (mask, label) in _segment(mxnet_array, dimensions, dump_path)
     ]

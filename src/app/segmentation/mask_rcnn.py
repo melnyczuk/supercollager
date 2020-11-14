@@ -1,5 +1,4 @@
 import os
-from dataclasses import dataclass
 from typing import Any, List, Tuple
 
 import cv2  # type:ignore
@@ -25,7 +24,6 @@ def _load_net():
 net = _load_net()
 
 
-@dataclass
 class MaskRCNNSegmentation:
     @staticmethod
     def run(

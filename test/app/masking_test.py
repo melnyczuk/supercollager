@@ -12,7 +12,7 @@ class MaskingTestCase(TestCase):
     @describe
     def test_to_block_mat(self, mock_randint):
         @each([True, False])
-        def produces_a_block_matrix_if_smooth_is_False(smooth):
+        def produces_a_block_matrix_if_blocky_is_True(blocky):
             input = np.array(
                 [
                     [1, 2, 3, 4, 5],
@@ -29,8 +29,8 @@ class MaskingTestCase(TestCase):
                     [3, 3, 5, 5, 7],
                 ]
             )
-            output = Masking.to_block_mat(input, smooth)
-            expected = input if smooth else block
+            output = Masking.to_block_mat(input, blocky)
+            expected = block if blocky else input
             np.testing.assert_array_equal(expected, output)
 
     @describe

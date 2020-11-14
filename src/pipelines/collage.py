@@ -16,16 +16,22 @@ def collage(
 ) -> List[Image.Image]:
     rgbas = [
         Masking.stack_alpha(
-            ai.img,
-            Transformation.rotate(
+            rgb=ai.img,
+            alpha=Transformation.rotate(
                 ai.mask,
                 rotation=(rotation if rotation != 0.0 else 90.0)
                 if (deform or (rotation != 0.0))
                 else 0.0,
             ),
         )
-        for ai in Segmentation.mask_rcnn(uris, blocky=blocky)
+        for ai in Segmentation.mask_rcnn(uris=uris, blocky=blocky)
     ]
     logger.log(f"segmented {len(rgbas)} images from {len(uris)} URIs")
     lum = randint(5, 50)
-    return [Composition.layer_to_image(rgbas, (lum, lum, lum), aspect=aspect)]
+    return [
+        Composition.layer_to_image(
+            layers=rgbas,
+            background=(lum, lum, lum),
+            aspect=aspect,
+        )
+    ]

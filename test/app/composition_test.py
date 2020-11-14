@@ -1,4 +1,4 @@
-from test.utils import describe, it
+from test.utils import describe, each, it
 from unittest import TestCase
 
 import numpy as np
@@ -18,11 +18,12 @@ class CompositionTestCase(TestCase):
                 np.zeros((16, 45)),
                 np.zeros((31, 90)),
             ]
-            output = _get_canvas_shape(imgs, reverse=True)
-            np.testing.assert_array_equal((92, 90), output)
+            output = _get_canvas_shape(imgs)
+            np.testing.assert_array_equal((92, 92), output)
 
-        @it
-        def gets_the_smallest_possible_dimensions():
+        @each([(0.7, 64), (1.2, 110), (0.9, 82)])
+        def returns_the_correct_aspect_ratio(args):
+            (aspect, width) = args
             imgs = [
                 np.zeros((30, 40)),
                 np.zeros((20, 80)),
@@ -30,5 +31,5 @@ class CompositionTestCase(TestCase):
                 np.zeros((16, 45)),
                 np.zeros((31, 90)),
             ]
-            output = _get_canvas_shape(imgs, reverse=False)
-            np.testing.assert_array_equal((16, 34), output)
+            output = _get_canvas_shape(imgs, aspect=aspect)
+            np.testing.assert_array_equal((92, width), output)
