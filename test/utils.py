@@ -1,5 +1,5 @@
-from sys import stdout
 import logging
+from sys import stdout
 
 logging.disable(logging.INFO)
 

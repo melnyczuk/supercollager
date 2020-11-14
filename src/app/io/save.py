@@ -1,9 +1,7 @@
-from os import path, mkdir
-from PIL import Image  # type:ignore
+from os import mkdir, path
 
 import numpy as np
-
-from src.logger import logger
+from PIL import Image  # type:ignore
 
 
 class Save:
@@ -28,7 +26,6 @@ class Save:
 
         out_path = _get_out_path(dir, fname, ext)
         mode = "RGBA" if arr.shape[2] == 4 and ext == "png" else "RGB"
-        logger.log(f"saving image to {out_path}")
         img = Image.fromarray(arr, mode=mode)
         img.save(out_path)
 
@@ -52,7 +49,6 @@ class Save:
 
         out_path = _get_out_path(dir, fname, ext)
         mode = "RGBA" if ext == "png" else "RGB"
-        logger.log(f"saving image to {out_path}.{ext}")
         out = img.convert(mode)
         out.save(out_path)
 

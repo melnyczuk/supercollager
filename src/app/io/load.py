@@ -1,21 +1,30 @@
-from PIL import Image  # type: ignore
-import numpy as np
-from gluoncv import data, model_zoo, utils  # type: ignore
-
+from io import BytesIO
 from typing import Any, List, Tuple
 
-from src.logger import logger
+import numpy as np
+import requests
+from gluoncv import data, model_zoo, utils  # type: ignore
+from PIL import Image  # type: ignore
+
+from ...logger import logger
+
+
+def is_url(uri: str) -> bool:
+    return uri.startswith("http")
 
 
 class Load:
     @staticmethod
     def image(path: str) -> Image:
-        return Image.open(path)
+        resource = (
+            path if not is_url(path) else BytesIO(requests.get(path).content)
+        )
+        return Image.open(resource)
 
     @staticmethod
     def np_array(path: str) -> np.ndarray:
         img = Load.image(path)
-        return np.array(img.getdata())
+        return np.array(img)
 
     @staticmethod
     def gluoncv_model(model_name: str, pretrained: bool = True) -> Any:
@@ -23,16 +32,13 @@ class Load:
         return model_zoo.get_model(model_name, pretrained=pretrained)
 
     @staticmethod
-    def mxnet_array_from_url(url: str) -> Tuple[List, np.ndarray, str]:
-        dump_fname = url.split("/")[-1]
-        logger.log(f"downloading {url}")
-        im_fname = utils.download(url, path=f"./dump/input/{dump_fname}")
-        logger.log(f"creating mxnet_array from {dump_fname}")
-        mx, img = data.transforms.presets.rcnn.load_test(im_fname)
-        return (mx, img, dump_fname.split(".")[0])
+    def mxnet_array(uri: str) -> Tuple[List, np.ndarray, str]:
+        dump_fname = uri.split("/")[-1]
 
-    @staticmethod
-    def mxnet_array_from_path(path: str) -> Tuple[List, np.ndarray, str]:
-        logger.log(f"creating mxnet_array from {path}")
-        mx, img = data.transforms.presets.rcnn.load_test(path)
-        return (mx, img, path.split("/")[-1].split(".")[0])
+        if is_url(uri):
+            logger.log(f"downloading {uri} to {dump_fname}")
+            uri = utils.download(uri, path=f"./dump/input/{dump_fname}")
+
+        logger.log(f"creating mxnet_array from {dump_fname}")
+        (mx, img) = data.transforms.presets.rcnn.load_test(uri)
+        return (mx, img, dump_fname.split(".")[0])

@@ -1,17 +1,18 @@
-from PIL import Image  # type: ignore
-
 from typing import List
 
-from src.app import Masking, Segmentation
-from src.logger import logger
+from PIL import Image  # type:ignore
+
+from ..app import Masking, Segmentation
+from ..logger import logger
 
 
-def segment(uris: List[str], block_size: int = 0) -> List[Image.Image]:
-    imgs = [Segmentation.gluoncv(uri, block_size) for uri in uris]
-    rgbas = [
-        Masking.draw_transparency(analysed_img.img, analysed_img.mask)
-        for analysed_imgs in imgs
-        for analysed_img in analysed_imgs
+def segment(
+    uris: List[str],
+    blocky: bool = True,
+) -> List[Image.Image]:
+    imgs = [
+        Masking.stack_alpha(rgb=analysed_img.img, alpha=analysed_img.mask)
+        for analysed_img in Segmentation.mask_rcnn(uris=uris, blocky=blocky)
     ]
-    logger.log(f"segmented {len(rgbas)} images from {len(uris)} URIs")
-    return [Image.fromarray(rgba) for rgba in rgbas]
+    logger.log(f"segmented {len(imgs)} images from {len(uris)} URIs")
+    return [(Image.fromarray(img) for img in imgs)]

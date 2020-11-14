@@ -1,6 +1,7 @@
 import logging
-from flask import request
 from dataclasses import dataclass
+
+from flask import request
 
 
 @dataclass(frozen=True)

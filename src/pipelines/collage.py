@@ -1,30 +1,37 @@
-from datetime import datetime
-
-from src.logger import logger
-from src.app import (
-    Colors,
-    Composition,
-    IO,
-    Noise,
-    Transformation,
-)
-from .segment import segment
-
 from typing import List
+
+from numpy.random import randint
+from PIL import Image  # type:ignore
+
+from ..app import Composition, Masking, Segmentation, Transformation
+from ..logger import logger
 
 
 def collage(
     uris: List[str] = [],
-    dir: str = "./dump/output",
-    n: int = -1,
-    smooth: bool = False,
-) -> None:
-    transparencies = segment(uris, int(smooth))
-    background = Colors.pick()
-    comp = Composition.layer_to_image(transparencies, background)
-    big = Transformation.scale_up_nparray(comp, 2)
-    jpg = Noise.jpg_artifact(big, 10)
-    output = Noise.salt_pepper(jpg, 0.1)
-    now = datetime.now().strftime("%Y%d%m-%H:%M:%S")
-    logger.log(f"saving image to {dir}/{now}.jpg")
-    IO.save.image(output, fname=now, dir=dir, ext=".jpg")
+    aspect: float = 1.0,
+    blocky: bool = False,
+    deform: bool = False,
+    rotation: float = 0.0,
+) -> List[Image.Image]:
+    rgbas = [
+        Masking.stack_alpha(
+            rgb=ai.img,
+            alpha=Transformation.rotate(
+                ai.mask,
+                rotation=(rotation if rotation != 0.0 else 90.0)
+                if (deform or (rotation != 0.0))
+                else 0.0,
+            ),
+        )
+        for ai in Segmentation.mask_rcnn(uris=uris, blocky=blocky)
+    ]
+    logger.log(f"segmented {len(rgbas)} images from {len(uris)} URIs")
+    lum = randint(5, 50)
+    return [
+        Composition.layer_to_image(
+            layers=rgbas,
+            background=(lum, lum, lum),
+            aspect=aspect,
+        )
+    ]

@@ -1,9 +1,10 @@
 import io
 from typing import List
-from PIL import Image  # type:ignore
-import numpy as np
 
-from src.logger import logger
+import numpy as np
+from PIL import Image  # type:ignore
+
+from ..logger import logger
 
 
 class Noise:
@@ -57,4 +58,4 @@ class Noise:
         img[salt[0], salt[1], :3] = 255
         img[pepper[0], pepper[1], :3] = 0
 
-        return img
+        return Image.fromarray(img)

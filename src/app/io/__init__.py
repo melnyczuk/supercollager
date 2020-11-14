@@ -1,6 +1,7 @@
 from dataclasses import dataclass
-from .save import Save
+
 from .load import Load
+from .save import Save
 
 
 @dataclass(frozen=True)

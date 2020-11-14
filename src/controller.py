@@ -1,10 +1,10 @@
+from typing import Any, Tuple, Union
+
 from flask import Blueprint, request
 from flask.json import jsonify
 
 from celery.app.base import Celery  # type: ignore
 from celery.result import AsyncResult  # type: ignore
-
-from typing import Any, Tuple, Union
 
 from .celery import celery
 from .logger import logger
