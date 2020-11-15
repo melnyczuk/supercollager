@@ -15,7 +15,7 @@ def is_url(uri: str) -> bool:
 
 class Load:
     @staticmethod
-    def image(path: str) -> Image:
+    def image(path: str) -> Image.Image:
         resource = (
             path if not is_url(path) else BytesIO(requests.get(path).content)
         )

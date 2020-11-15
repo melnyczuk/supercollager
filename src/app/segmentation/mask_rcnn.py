@@ -6,6 +6,7 @@ import numpy as np
 from PIL import Image  # type: ignore
 from tqdm.std import tqdm  # type:ignore
 
+from ..io import IO
 from ..masking import Masking
 from .types import AnalysedImage, Bounds, MaskBox
 
@@ -30,7 +31,7 @@ class MaskRCNNSegmentation:
         uris: List[str],
         blocky: bool = False,
     ) -> List[AnalysedImage]:
-        imgs = [Image.open(uri) for uri in uris]
+        imgs = [IO.load.image(uri) for uri in uris]
         return [
             AnalysedImage(
                 img=np.array(img, dtype=np.uint8),
