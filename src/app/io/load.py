@@ -19,7 +19,7 @@ class Load:
         resource = (
             path if not is_url(path) else BytesIO(requests.get(path).content)
         )
-        return Image.open(resource)
+        return Image.open(resource).convert("RGB")
 
     @staticmethod
     def np_array(path: str) -> np.ndarray:
