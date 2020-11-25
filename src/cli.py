@@ -2,8 +2,6 @@ import os
 from datetime import datetime
 from typing import List
 
-from tqdm import tqdm  # type:ignore
-
 from .app import IO
 from .logger import logger
 from .pipelines import LabelImage, collage, segment
@@ -40,7 +38,7 @@ def save(fn):
 
         result: List[LabelImage] = fn(uris=uris, **kwargs)
 
-        for i, li in enumerate(tqdm(result)):
+        for i, li in enumerate(result):
             IO.save.image(
                 img=li.image,
                 fname=f"{fname}-{li.label}-{i}",

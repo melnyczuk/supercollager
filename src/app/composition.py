@@ -3,7 +3,6 @@ from typing import List
 import cv2  # type: ignore
 import numpy as np
 from PIL import Image  # type: ignore
-from tqdm.std import tqdm  # type: ignore
 
 
 class Composition:
@@ -15,7 +14,7 @@ class Composition:
         edge = _get_max_edge(imgs)
         canvas = Image.new("RGBA", (edge, edge), background)
 
-        for img in tqdm(imgs):
+        for img in imgs:
             canvas.alpha_composite(img)
 
         return _crop_roi(canvas, background + 1)
