@@ -1,15 +1,22 @@
 from typing import Any, Dict, List
 
-from src import pipelines
-
 from .celery import celery
+from .pipelines import LabelImage, collage, segment
 
 
-@celery.task  # type: ignore
-def segment(data: Dict[str, Any]) -> List[Dict[str, Any]]:
-    if "url" not in data.keys():
-        raise ValueError("url missing")
-    try:
-        return pipelines.segment(data["urls"])
-    except Exception as e:
-        raise e
+def check(fn):
+    @staticmethod
+    def f(data: Dict[str, Any]) -> List[LabelImage]:
+        if "uris" not in data.keys():
+            raise ValueError("uris missing")
+        try:
+            return fn(**data)
+        except Exception as e:
+            raise e
+
+    return f
+
+
+class Tasks:
+    collage = celery.task(check(collage))
+    segment = celery.task(check(segment))
