@@ -1,28 +1,40 @@
 import os
-from typing import Any, List, Tuple
+from typing import List, Tuple
 
-import cv2  # type:ignore
+import cv2  # type: ignore
 import numpy as np
 from PIL import Image  # type: ignore
 from tqdm.std import tqdm  # type:ignore
 
+from ...logger import logger
 from ..io import IO
 from ..masking import Masking
 from .types import AnalysedImage, Bounds, MaskBox
 
-WEIGHTS_DIR = os.path.abspath("weights/mask_rcnn_inception_v2_coco_2018_01_28")
-WEIGHTS = os.path.join(WEIGHTS_DIR, "frozen_inference_graph.pb")
-CONFIG = os.path.join(WEIGHTS_DIR, "conf.pbtxt")
+WEIGHTS_DIR = os.path.abspath("weights")
+CONFIG = "conf.pbtxt"
+CLASS_NAMES = "classes.txt"
+WEIGHTS = [
+    "mask_rcnn_inception_v2_coco_2018_01_28.pb",
+    "mask_rcnn_pyimagesearch_coco.pb",
+    "mask_rcnn_inception_resnet_v2_atrous_coco_2018_01_28.pb",
+    "mask_rcnn_resnet50_atrous_coco_2018_01_28.pb",
+]
 
 
-def _load_net():
-    net = cv2.dnn.readNetFromTensorflow(WEIGHTS, CONFIG)
+def _load_net(m: int = 0) -> cv2.dnn_SegmentationModel:
+    weights = os.path.join(WEIGHTS_DIR, WEIGHTS[m])
+    conf = os.path.join(WEIGHTS_DIR, CONFIG)
+    net = cv2.dnn.readNetFromTensorflow(weights, conf)
     net.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
     net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
     return net
 
 
 net = _load_net()
+
+with open(os.path.join(WEIGHTS_DIR, CLASS_NAMES), "r") as file:
+    coco_class_names = file.read().split("\n")
 
 
 class MaskRCNNSegmentation:
@@ -32,30 +44,32 @@ class MaskRCNNSegmentation:
         blocky: bool = False,
     ) -> List[AnalysedImage]:
         imgs = [IO.load.image(uri) for uri in uris]
-        return [
+
+        analysed_imgs = [
             AnalysedImage(
                 img=np.array(img, dtype=np.uint8),
                 mask=Masking.to_block_mat(
                     _process_mask(mb),
                     blocky,
                 ).astype(np.uint8),
+                label=coco_class_names[mb.classId],
             )
             for img in tqdm(imgs)
             for mb in _get_maskboxes(img)
         ]
 
+        logger.log(
+            f"segmented {len(analysed_imgs)} images from {len(uris)} URIs, finding {len(set(ai.label for ai in analysed_imgs))} different types of object"  # noqa: E501
+        )
 
-def _get_maskboxes(img: Image) -> List[MaskBox]:
-    blob = _get_blob(img)
+        return analysed_imgs
+
+
+def _get_maskboxes(img: Image.Image) -> List[MaskBox]:
+    blob = cv2.dnn.blobFromImage(np.array(img), swapRB=True, crop=False)
     net.setInput(blob)
     ([[boxes]], masks) = net.forward(["detection_out_final", "detection_masks"])
     return _match_masks_to_boxes(img.size[::-1], list(zip(boxes[:, 1:], masks)))
-
-
-def _get_blob(img: Image) -> Any:
-    img_rgb = np.array(img)
-    img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
-    return cv2.dnn.blobFromImage(img_gray, swapRB=False, crop=False)
 
 
 def _match_masks_to_boxes(
