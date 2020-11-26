@@ -2,13 +2,11 @@ import os
 from datetime import datetime
 from typing import List
 
-from tqdm import tqdm  # type:ignore
-
-from . import pipelines
 from .app import IO
 from .logger import logger
+from .pipelines import LabelImage, collage, segment
 
-VALID_FORMATS = ["jpg", "png", "jpeg"]
+VALID_FORMATS = ["jpg", "png", "jpeg", "tif", "tiff"]
 
 
 def _parse_uris(uris: List[str]) -> List[str]:
@@ -30,7 +28,7 @@ def _parse_uris(uris: List[str]) -> List[str]:
 
 def save(fn):
     @staticmethod
-    def f(**kwargs):
+    def f(**kwargs) -> None:
         now = datetime.now().strftime("%Y%m%d-%H:%M:%S")
         dir = kwargs.pop("dir", "./dump/output")
         fname = kwargs.pop("fname", now)
@@ -38,23 +36,24 @@ def save(fn):
 
         uris = _parse_uris(kwargs.pop("uris", []))
 
-        for i, img in enumerate(tqdm(fn(uris=uris, **kwargs))):
+        result: List[LabelImage] = fn(uris=uris, **kwargs)
+
+        for i, li in enumerate(result):
             IO.save.image(
-                img=img,
-                fname=f"{fname}-{i}",
+                img=li.image,
+                fname=f"{fname}-{li.label}-{i}",
                 dir=dir,
                 ext=ext,
             )
 
-        logger.log(f"saved images to {dir}")
+        logger.log(f"saved {len(result)} images to {dir}")
 
     return f
 
 
 class CLI:
-    blocks = save(pipelines.blocks)
-    collage = save(pipelines.collage)
-    segment = save(pipelines.segment)
+    collage = save(collage)
+    segment = save(segment)
 
 
 if __name__ == "__main__":

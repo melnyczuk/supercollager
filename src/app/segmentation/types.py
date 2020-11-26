@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Tuple, Union
+from typing import Tuple
 
 from numpy import ndarray
 
@@ -8,7 +8,7 @@ from numpy import ndarray
 class AnalysedImage:
     img: ndarray
     mask: ndarray
-    label: Union[str, None] = None
+    label: str
 
 
 @dataclass

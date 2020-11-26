@@ -1,59 +1,37 @@
-from typing import List, Tuple
+from typing import List
 
+import cv2  # type: ignore
 import numpy as np
 from PIL import Image  # type: ignore
-from tqdm.std import tqdm  # type: ignore
 
 
 class Composition:
     @staticmethod
-    def layer_to_image(
-        layers: List[np.ndarray],
-        background: Tuple[int, int, int] = (0, 0, 0),
-        aspect: float = 1.0,
+    def layer_images(
+        imgs: List[Image.Image],
+        background: int = 0,
     ) -> Image:
-        canvas = _get_canvas(layers, background=background, aspect=aspect)
+        edge = _get_max_edge(imgs)
+        canvas = Image.new("RGBA", (edge, edge), background)
 
-        for layer in tqdm(layers):
-            img = Image.fromarray(layer.astype(np.uint8))
+        for img in imgs:
             canvas.alpha_composite(img)
 
-        return canvas
-
-    @staticmethod
-    def layer_to_np(
-        layers: List[np.ndarray],
-        background: Tuple[int, int, int] = (0, 0, 0),
-        aspect: float = 1.0,
-    ) -> np.ndarray:
-        canvas = Composition.layer_to_image(
-            layers=layers,
-            background=background,
-            aspect=aspect,
-        )
-        return np.array(canvas).astype(np.uint8)
+        return _crop_roi(canvas, background + 1)
 
 
-def _get_canvas(
-    layers: List[np.ndarray],
-    background: Tuple[int, int, int] = (0, 0, 0),
-    aspect: float = 1.0,
-) -> np.ndarray:
-    return Image.fromarray(
-        np.full(
-            (*_get_canvas_shape(layers, aspect), 4),
-            np.array([*background, 255]),
-            dtype=np.uint8,
-        )
+def _crop_roi(img: Image.Image, threshold: int) -> Image.Image:
+    greyscale = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
+    (_, binary) = cv2.threshold(greyscale, threshold, 255, cv2.THRESH_BINARY)
+    (ctrs, _) = cv2.findContours(
+        binary,
+        cv2.RETR_EXTERNAL,
+        cv2.CHAIN_APPROX_SIMPLE,
     )
+    sorted_contours = sorted(ctrs, key=lambda ctr: ctr.size, reverse=True)
+    (x, y, w, h) = cv2.boundingRect(sorted_contours[0])
+    return img.crop([x, y, x + w, y + h])
 
 
-def _get_canvas_shape(
-    imgs: List[np.ndarray],
-    aspect: float = 1.0,
-) -> Tuple[int, int]:
-    edge_lengths = [n for a in imgs for n in a.shape]
-    edge_lengths.sort(reverse=True)
-    height = edge_lengths[0]
-    width = int(height * aspect)
-    return (height, width)
+def _get_max_edge(imgs: List[Image.Image]) -> int:
+    return sorted([n for a in imgs for n in a.size], reverse=True)[0]
