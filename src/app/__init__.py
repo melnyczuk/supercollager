@@ -5,4 +5,4 @@ from .masking import Masking  # noqa: F401
 from .noise import Noise  # noqa: F401
 from .post import Post  # noqa: F401
 from .segmentation import Segmentation  # noqa: F401
-from .transformation import Transformation  # noqa: F401
+from .transform import Transform  # noqa: F401
