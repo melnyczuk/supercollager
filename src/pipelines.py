@@ -16,6 +16,15 @@ class LabelImage:
     label: str = ""
 
 
+def collage(**kwargs) -> List[LabelImage]:
+    comp = Composition.layer_images(
+        imgs=[label_image.pil_img for label_image in segment(**kwargs)],
+        background=randint(5, 15),
+    ).convert("RGB")
+
+    return [LabelImage(Post.run(comp))]
+
+
 def segment(
     uris: List[str],
     blocky: bool = True,
@@ -41,16 +50,8 @@ def segment(
 
 
 def _make_segment(ai: AnalysedImage, warp: float, rotation: float) -> Image:
-    kaleidoscope = bool(int(random() * 1.2))
-    rgb = Transform.warp(ai.np_img, warp, kaleidoscope)
-    alpha = Transform.rotate(ai.mask, rotation=rotation)
-    return Image.fromarray(Masking.stack_alpha(rgb=rgb, alpha=alpha))
-
-
-def collage(**kwargs) -> List[LabelImage]:
-    comp = Composition.layer_images(
-        imgs=[label_image.pil_img for label_image in segment(**kwargs)],
-        background=randint(5, 50),
-    ).convert("RGB")
-
-    return [LabelImage(Post.run(comp))]
+    rgb = Transform.warp(ai.np_img, warp)
+    mask = Transform.rotate(ai.mask, factor=rotation)
+    box = ROI.get_bounding_box(mask, 0)
+    rgba = np.dstack((rgb, mask))
+    return Image.fromarray(rgba).crop(box)
