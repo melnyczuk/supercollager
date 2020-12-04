@@ -66,11 +66,12 @@ class MaskRCNNSegmentation:
 
 
 def _get_maskboxes(pil_img: Image.Image) -> List[MaskBox]:
-    blob = cv2.dnn.blobFromImage(np.array(pil_img), swapRB=True, crop=False)
+    cv_img = np.array(pil_img)
+    blob = cv2.dnn.blobFromImage(cv_img)
     net.setInput(blob)
     ([[boxes]], masks) = net.forward(["detection_out_final", "detection_masks"])
     return _match_masks_to_boxes(
-        pil_img.size[::-1], list(zip(boxes[:, 1:], masks))
+        cv_img.shape[:2], list(zip(boxes[:, 1:], masks))
     )
 
 
@@ -83,7 +84,7 @@ def _match_masks_to_boxes(
         MaskBox(
             frame=frame,
             classId=int(box[0]),
-            mask=masks[int(box[0])].transpose(),
+            mask=masks[int(box[0])],
             score=box[1],
             bounds=_calc_bounds(frame, box),
         )
@@ -93,39 +94,33 @@ def _match_masks_to_boxes(
 
 
 def _process_mask(maskbox: MaskBox) -> np.ndarray:
-    mask = _resize_mask(maskbox)
-    inverted = _invert_mask(mask)
     arr = np.zeros(maskbox.frame)
     arr[
-        maskbox.bounds.top : maskbox.bounds.bottom + 1,  # noqa: E203
-        maskbox.bounds.left : maskbox.bounds.right + 1,  # noqa: E203
-    ] = inverted
+        maskbox.bounds.top : maskbox.bounds.bottom,  # noqa: E203
+        maskbox.bounds.left : maskbox.bounds.right,  # noqa: E203
+    ] = _resize_mask(maskbox)
     return arr
 
 
 def _resize_mask(maskbox: MaskBox) -> np.ndarray:
-    return cv2.resize(
-        maskbox.mask,
-        (
-            maskbox.bounds.bottom - maskbox.bounds.top + 1,
-            maskbox.bounds.right - maskbox.bounds.left + 1,
-        ),
+    target_size = (
+        maskbox.bounds.right - maskbox.bounds.left,
+        maskbox.bounds.bottom - maskbox.bounds.top,
     )
-
-
-def _invert_mask(mask: np.ndarray, thresh: float = 0.0) -> np.ndarray:
-    thresh_mask = np.where(mask > thresh, mask * 255, mask * 0)
-    int_mask = thresh_mask.astype(np.uint8).transpose()
-    return np.full(int_mask.shape, 255, dtype=np.uint8) - int_mask
+    return (
+        cv2.resize(maskbox.mask, target_size, interpolation=cv2.INTER_NEAREST)
+        * 255
+    ).astype(np.uint8)
 
 
 def _calc_bounds(frame: Tuple[int, int], box: np.ndarray) -> Bounds:
-    def min_max(shape_dim, box_index):
-        return max(0, min(int(shape_dim * box_index), shape_dim - 1))
+    def min_max(shape_dim: int, box_dim: float) -> int:
+        scaled_dim = int(shape_dim * box_dim)
+        return int(max(0, min(scaled_dim, shape_dim - 1)))
 
-    left = min_max(frame[1], box[2])
-    top = min_max(frame[0], box[3])
-    right = min_max(frame[1], box[4])
-    bottom = min_max(frame[0], box[5])
-
-    return Bounds(int(left), int(top), int(right), int(bottom))
+    return Bounds(
+        left=min_max(frame[1], box[2]),
+        top=min_max(frame[0], box[3]),
+        right=min_max(frame[1], box[4]),
+        bottom=min_max(frame[0], box[5]),
+    )
