@@ -99,21 +99,21 @@ class SaveTestCase(TestCase):
             ]
         )
         def throws_without_a_dir_and_a_fname(kwargs):
-            self.assertRaises(ValueError, IO.save.image, mock_Image, **kwargs)
+            self.assertRaises(ValueError, IO.save.pil_img, mock_Image, **kwargs)
 
         @each([("jpg", "RGB"), ("png", "RGBA")])
         def calls_convert_with_the_correct_mode(vars):
             (ext, mode) = vars
-            IO.save.image(mock_Image, fname="test", dir="./dir", ext=ext)
+            IO.save.pil_img(mock_Image, fname="test", dir="./dir", ext=ext)
             mock_Image.convert.assert_called_with(mode)
 
         @each(["test", "test.png"])
         def saves_a_file_regardless_of_ext(fname):
-            IO.save.image(mock_Image, fname=fname, dir="./dir", ext="png")
+            IO.save.pil_img(mock_Image, fname=fname, dir="./dir", ext="png")
             mock_Image.convert.assert_called()
             mock_Image.save.assert_called_with("./dir/test.png")
 
         @each(["jpg", "png"])
         def saves_a_file_with_provided_ext(ext):
-            IO.save.image(mock_Image, fname="test", dir="./dir", ext=ext)
+            IO.save.pil_img(mock_Image, fname="test", dir="./dir", ext=ext)
             mock_Image.save.assert_called_with(f"./dir/test.{ext}")

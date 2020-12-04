@@ -25,17 +25,17 @@ class GluonCVSegmentation:
 
 def _get_masks_and_labels(
     mxnet_array: List,
-    img: np.ndarray,
+    np_img: np.ndarray,
     fname: str,
     blocky: bool = False,
 ) -> List[AnalysedImage]:
-    dimensions = _type_safe_dimensions(img)
+    dimensions = _type_safe_dimensions(np_img)
     dump_path = f"./dump/pickles/{fname}.dump"
 
     return [
         AnalysedImage(
             label=label,
-            img=img,
+            np_img=np_img,
             mask=Masking.to_block_mat(mask, blocky=blocky),
         )
         for (mask, label) in _segment(mxnet_array, dimensions, dump_path)
@@ -84,6 +84,6 @@ def _pickle_memo(fn: Callable, dump_path: str) -> List:
     return dump
 
 
-def _type_safe_dimensions(img: np.ndarray) -> Tuple[int, int]:
-    (width, height) = img.shape[:2][::-1]
+def _type_safe_dimensions(np_img: np.ndarray) -> Tuple[int, int]:
+    (width, height) = np_img.shape[:2][::-1]
     return (width, height)

@@ -38,13 +38,10 @@ def save(fn):
 
         result: List[LabelImage] = fn(uris=uris, **kwargs)
 
-        for i, li in enumerate(result):
-            IO.save.image(
-                img=li.image,
-                fname=f"{fname}-{li.label}-{i}",
-                dir=dir,
-                ext=ext,
-            )
+        for i, label_image in enumerate(result):
+            img = label_image.pil_img
+            f = f"{fname}-{label_image.label}-{i}"
+            IO.save.pil_img(pil_img=img, fname=f, dir=dir, ext=ext)
 
         logger.log(f"saved {len(result)} images to {dir}")
 

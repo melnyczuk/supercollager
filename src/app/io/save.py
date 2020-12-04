@@ -6,8 +6,8 @@ from PIL import Image  # type:ignore
 
 class Save:
     @staticmethod
-    def np_array(
-        arr: np.ndarray,
+    def np_img(
+        np_img: np.ndarray,
         fname: str = None,
         dir: str = None,
         ext: str = None,
@@ -25,12 +25,12 @@ class Save:
             mkdir(dir)
 
         out_path = _get_out_path(dir, fname, ext)
-        mode = "RGBA" if arr.shape[2] == 4 and ext == "png" else "RGB"
-        img = Image.fromarray(arr, mode=mode)
+        mode = "RGBA" if np_img.shape[2] == 4 and ext == "png" else "RGB"
+        img = Image.fromarray(np_img, mode=mode)
         img.save(out_path)
 
-    def image(
-        img: Image,
+    def pil_img(
+        pil_img: Image,
         fname: str = None,
         dir: str = None,
         ext: str = None,
@@ -49,7 +49,7 @@ class Save:
 
         out_path = _get_out_path(dir, fname, ext)
         mode = "RGBA" if ext == "png" else "RGB"
-        out = img.convert(mode)
+        out = pil_img.convert(mode)
         out.save(out_path)
 
 

@@ -6,7 +6,7 @@ from numpy import ndarray
 
 @dataclass
 class AnalysedImage:
-    img: ndarray
+    np_img: ndarray
     mask: ndarray
     label: str
 

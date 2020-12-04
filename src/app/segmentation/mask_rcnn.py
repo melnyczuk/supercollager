@@ -43,33 +43,35 @@ class MaskRCNNSegmentation:
         uris: List[str],
         blocky: bool = False,
     ) -> List[AnalysedImage]:
-        imgs = [IO.load.image(uri) for uri in uris]
+        pil_imgs = [IO.load.pil_img(uri) for uri in uris]
 
         analysed_imgs = [
             AnalysedImage(
-                img=np.array(img, dtype=np.uint8),
+                np_img=np.array(img, dtype=np.uint8),
                 mask=Masking.to_block_mat(
                     _process_mask(mb),
                     blocky,
                 ).astype(np.uint8),
                 label=coco_class_names[mb.classId],
             )
-            for img in tqdm(imgs)
+            for img in tqdm(pil_imgs)
             for mb in _get_maskboxes(img)
         ]
 
         logger.log(
-            f"segmented {len(analysed_imgs)} images from {len(uris)} URIs, finding {len(set(ai.label for ai in analysed_imgs))} different types of object"  # noqa: E501
+            f"segmented {len(analysed_imgs)} images from {len(uris)} URIs finding {len(set(ai.label for ai in analysed_imgs))} different types of object"  # noqa: E501
         )
 
         return analysed_imgs
 
 
-def _get_maskboxes(img: Image.Image) -> List[MaskBox]:
-    blob = cv2.dnn.blobFromImage(np.array(img), swapRB=True, crop=False)
+def _get_maskboxes(pil_img: Image.Image) -> List[MaskBox]:
+    blob = cv2.dnn.blobFromImage(np.array(pil_img), swapRB=True, crop=False)
     net.setInput(blob)
     ([[boxes]], masks) = net.forward(["detection_out_final", "detection_masks"])
-    return _match_masks_to_boxes(img.size[::-1], list(zip(boxes[:, 1:], masks)))
+    return _match_masks_to_boxes(
+        pil_img.size[::-1], list(zip(boxes[:, 1:], masks))
+    )
 
 
 def _match_masks_to_boxes(
