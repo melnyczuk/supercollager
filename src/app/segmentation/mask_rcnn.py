@@ -9,7 +9,7 @@ from tqdm.std import tqdm  # type:ignore
 from ...logger import logger
 from ..io import IO
 from ..masking import Masking
-from .types import AnalysedImage, Bounds, MaskBox
+from ..types import AnalysedImage, Bounds, MaskBox
 
 WEIGHTS_DIR = os.path.abspath("weights")
 CONFIG = "conf.pbtxt"

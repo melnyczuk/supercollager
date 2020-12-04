@@ -7,9 +7,7 @@ from numpy.random import randint
 from PIL import Image  # type: ignore
 from tqdm.std import tqdm  # type: ignore
 
-from src.app.segmentation.types import AnalysedImage
-
-from .app import Composition, Masking, Post, Segmentation, Transform
+from .app import ROI, AnalysedImage, Composition, Post, Segmentation, Transform
 
 
 @dataclass(frozen=True)

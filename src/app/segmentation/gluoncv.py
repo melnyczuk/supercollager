@@ -7,7 +7,7 @@ from gluoncv import utils  # type:ignore
 
 from ..io import IO
 from ..masking import Masking
-from .types import AnalysedImage
+from ..types import AnalysedImage
 
 
 class GluonCVSegmentation:
