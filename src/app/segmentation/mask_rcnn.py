@@ -76,7 +76,7 @@ def _get_maskboxes(pil_img: Image.Image) -> List[MaskBox]:
 
 
 def _match_masks_to_boxes(
-    frame: Tuple[int, int],
+    frame: Tuple[int, ...],
     detection_masks: List[Tuple[np.ndarray, np.ndarray]],
     thresh: float = 0.0,
 ) -> List[MaskBox]:
@@ -113,7 +113,7 @@ def _resize_mask(maskbox: MaskBox) -> np.ndarray:
     ).astype(np.uint8)
 
 
-def _calc_bounds(frame: Tuple[int, int], box: np.ndarray) -> Bounds:
+def _calc_bounds(frame: Tuple[int, ...], box: np.ndarray) -> Bounds:
     def min_max(shape_dim: int, box_dim: float) -> int:
         scaled_dim = int(shape_dim * box_dim)
         return int(max(0, min(scaled_dim, shape_dim - 1)))

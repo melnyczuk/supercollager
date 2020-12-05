@@ -21,7 +21,7 @@ class Bounds:
 
 @dataclass
 class MaskBox:
-    frame: Tuple[int, int]
+    frame: Tuple[int, ...]
     classId: int
     score: float
     mask: ndarray

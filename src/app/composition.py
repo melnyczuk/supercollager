@@ -17,4 +17,4 @@ class Composition:
             )
             canvas.alpha_composite(img, offset)
 
-        return ROI.crop_roi(canvas)
+        return ROI.crop_pil(canvas)
