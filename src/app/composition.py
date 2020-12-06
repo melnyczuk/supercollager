@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List
 
 from PIL import Image  # type: ignore
 

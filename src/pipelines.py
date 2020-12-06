@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from random import random
 from typing import List
 
 import numpy as np
@@ -27,15 +26,13 @@ def collage(**kwargs) -> List[LabelImage]:
 
 def segment(
     uris: List[str],
-    blocky: bool = True,
+    blocky: bool = False,
     deform: bool = False,
     rotation: float = 0.0,
     warp: float = 0.0,
 ) -> List[LabelImage]:
     real_rotation = (
-        (rotation if rotation != 0.0 else (90.0 * random()))
-        if (deform or (rotation != 0.0))
-        else 0.0
+        0.0 if not deform and not rotation else rotation if rotation else 90.0
     )
 
     analysed_images = Segmentation.mask_rcnn(uris=uris, blocky=blocky)
@@ -49,9 +46,13 @@ def segment(
     ]
 
 
-def _make_segment(ai: AnalysedImage, warp: float, rotation: float) -> Image:
-    rgb = Transform.warp(ai.np_img, warp)
-    mask = Transform.rotate(ai.mask, factor=rotation)
-    box = ROI.get_bounding_box(mask, 0)
-    rgba = np.dstack((rgb, mask))
-    return Image.fromarray(rgba).crop(box)
+def _make_segment(
+    ai: AnalysedImage,
+    warp_factor: float = 0.0,
+    rotation: float = 0.0,
+) -> Image:
+    mask = Transform.rotate(ai.mask, factor=rotation) if rotation else ai.mask
+    rgba = np.dstack((ai.np_img, mask))  # type: ignore
+    warp = Transform.warp(rgba, warp_factor) if warp_factor else rgba
+    pil_img = Image.fromarray(warp)
+    return ROI.crop_pil(pil_img)

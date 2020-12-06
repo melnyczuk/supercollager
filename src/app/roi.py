@@ -54,7 +54,7 @@ def _get_roi(
 
 def _get_grey(np_img: np.ndarray) -> np.ndarray:
     if n_channels := np_img.shape[2] == 4:
-        return cv2.cvtColor(np_img, cv2.COLOR_RGBA2GRAY)
+        return np_img[:, :, 3]
     if n_channels == 3:
         return cv2.cvtColor(np_img, cv2.COLOR_RGB2GRAY)
     if n_channels == 2:
