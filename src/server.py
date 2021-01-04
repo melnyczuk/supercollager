@@ -3,9 +3,9 @@ import os
 from flask import Flask
 from flask_cors import CORS  # type: ignore
 
-from .celery import celery
-from .controller import routes
-from .logger import logger
+from src.celery import celery
+from src.controller import routes
+from src.logger import logger
 
 server = Flask(__name__)
 celery.conf.update(server.config)

@@ -6,7 +6,7 @@ import requests
 from gluoncv import data, model_zoo, utils  # type: ignore
 from PIL import Image  # type: ignore
 
-from ...logger import logger
+from src.logger import logger
 
 
 def is_url(uri: str) -> bool:

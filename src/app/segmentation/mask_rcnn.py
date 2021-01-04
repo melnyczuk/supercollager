@@ -6,10 +6,10 @@ import numpy as np
 from PIL import Image  # type: ignore
 from tqdm.std import tqdm  # type:ignore
 
-from ...logger import logger
-from ..io import IO
-from ..masking import Masking
-from ..types import AnalysedImage, Bounds, MaskBox
+from src.app.io import IO
+from src.app.masking import Masking
+from src.app.types import AnalysedImage, Bounds, MaskBox
+from src.logger import logger
 
 WEIGHTS_DIR = os.path.abspath("weights")
 CONFIG = "conf.pbtxt"

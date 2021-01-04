@@ -2,6 +2,7 @@ import random
 from typing import Tuple
 
 import numpy as np
+from PIL import Image  # type:ignore
 
 
 class Masking:
@@ -23,3 +24,26 @@ class Masking:
     def to_rgba(mask: np.ndarray, color: Tuple[int, int, int]) -> np.ndarray:
         rgb = np.full((*mask.shape, 3), np.array(color))
         return np.dstack((rgb, mask))  # type: ignore
+
+    @staticmethod
+    def apply_mask(np_img: np.ndarray, mask: np.ndarray, **kwargs) -> Image:
+        rotated_mask = _rotate(mask, **kwargs)
+        rgba = np.dstack((np_img, rotated_mask))  # type: ignore
+        return Image.fromarray(rgba)
+
+
+def _rotate(
+    np_img: np.ndarray,
+    rotation: float = 0.0,
+    deform: bool = False,
+) -> np.ndarray:
+    if not deform and not rotation:
+        return np_img
+
+    real_rotation = rotation if rotation else 90.0
+
+    return np.array(
+        Image.fromarray(np_img)
+        .rotate(real_rotation)
+        .resize(np_img.shape[:2][::-1])
+    )

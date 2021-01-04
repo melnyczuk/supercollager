@@ -5,9 +5,9 @@ from typing import Any, Callable, List, Tuple
 import numpy as np
 from gluoncv import utils  # type:ignore
 
-from ..io import IO
-from ..masking import Masking
-from ..types import AnalysedImage
+from src.app.io import IO
+from src.app.masking import Masking
+from src.app.types import AnalysedImage
 
 
 class GluonCVSegmentation:

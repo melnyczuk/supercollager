@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
-from .gluoncv import GluonCVSegmentation
-from .mask_rcnn import MaskRCNNSegmentation
+from src.app.segmentation.gluoncv import GluonCVSegmentation
+from src.app.segmentation.mask_rcnn import MaskRCNNSegmentation
 
 
 @dataclass(frozen=True)

@@ -12,9 +12,6 @@ class Composition:
         canvas = Image.new("RGBA", (edge, edge), background)
 
         for img in imgs:
-            offset = tuple(
-                (canvas.size[i] - img.size[i]) // 2 for i in range(2)
-            )
-            canvas.alpha_composite(img, offset)
+            canvas.alpha_composite(img)
 
         return ROI.crop_pil(canvas)

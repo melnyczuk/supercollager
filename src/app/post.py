@@ -3,7 +3,7 @@ from PIL import Image, ImageEnhance, ImageOps  # type: ignore
 
 class Post:
     @staticmethod
-    def run(pil_img: Image) -> Image:
+    def process(pil_img: Image) -> Image:
         contrasted = _contrast(pil_img, 1.2)
         return ImageEnhance.Color(contrasted).enhance(1.2)
 

@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Tuple
 
 from numpy import ndarray
+from PIL import Image  # type: ignore
 
 
 @dataclass
@@ -17,6 +18,12 @@ class Bounds:
     top: int
     right: int
     bottom: int
+
+
+@dataclass(frozen=True)
+class LabelImage:
+    pil_img: Image
+    label: str = ""
 
 
 @dataclass
