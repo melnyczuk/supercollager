@@ -3,11 +3,12 @@ import pickle
 from typing import Any, Callable, List, Tuple
 
 import numpy as np
-from gluoncv import utils  # type:ignore
+from gluoncv import data, model_zoo, utils  # type: ignore
 
 from src.app.io import IO
 from src.app.masking import Masking
 from src.app.types import AnalysedImage
+from src.logger import logger
 
 
 class GluonCVSegmentation:
@@ -17,18 +18,26 @@ class GluonCVSegmentation:
             analysed_image
             for resource in resources
             for analysed_image in _get_masks_and_labels(
-                *IO.load.mxnet_array(resource),
+                resource,
                 blocky=blocky,
             )
         ]
 
 
 def _get_masks_and_labels(
-    mxnet_array: List,
-    np_img: np.ndarray,
-    fname: str,
+    uri: str,
     blocky: bool = False,
 ) -> List[AnalysedImage]:
+    dump_fname = uri.split("/")[-1]
+    fname = dump_fname.split(".")[0]
+
+    if uri.startswith("http"):
+        logger.log(f"downloading {uri} to {dump_fname}")
+        uri = utils.download(uri, path=f"./dump/input/{dump_fname}")
+
+    logger.log(f"creating mxnet_array from {dump_fname}")
+    (mxnet_array, np_img) = data.transforms.presets.rcnn.load_test(uri)
+
     dimensions = _type_safe_dimensions(np_img)
     dump_path = f"./dump/pickles/{fname}.dump"
 
@@ -42,18 +51,14 @@ def _get_masks_and_labels(
     ]
 
 
-# Computationally intense
-def _run_net(net: Any, mxnet_array: List) -> Tuple:
-    data = (mx.asnumpy() for [mx] in net(mxnet_array))
-    return (*data, net.classes)
-
-
 def _segment(
     mxnet_array: List,
     dimensions: Tuple[int, int],
     dump_path: str = "./dump/dump.dump",
 ) -> List[Tuple[np.ndarray, str]]:
-    net = IO.load.gluoncv_model("mask_rcnn_resnet50_v1b_coco")
+    model_name = "mask_rcnn_resnet50_v1b_coco"
+    logger.log(f"loading {model_name} gluoncv model...")
+    net = model_zoo.get_model(model_name, pretrained=True)
 
     (ids, scores, bboxes, masks, entities) = _pickle_memo(
         lambda: _run_net(net, mxnet_array),
@@ -70,6 +75,12 @@ def _segment(
     labels = (f"{entities[int(ids[i])]}-{i}" for i in id_indexes)
 
     return [*zip(exp_masks, labels)]
+
+
+# Computationally intense
+def _run_net(net: Any, mxnet_array: List) -> Tuple:
+    data = (mx.asnumpy() for [mx] in net(mxnet_array))
+    return (*data, net.classes)
 
 
 # pickle memoization - replace with something more elegant

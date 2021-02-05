@@ -40,7 +40,7 @@ def save(fn):
         for i, label_image in enumerate(result):
             img = label_image.pil_img
             f = f"{fname}-{i}{label_image.label}"
-            IO.save.pil_img(pil_img=img, fname=f, dir=dir)
+            IO.save(img, fname=f, dir=dir)
 
         logger.log(f"saved {len(result)} images to {dir}")
 

@@ -43,7 +43,7 @@ class MaskRCNNSegmentation:
         uris: List[str],
         blocky: bool = False,
     ) -> List[AnalysedImage]:
-        pil_imgs = [IO.load.pil_img(uri) for uri in uris]
+        pil_imgs = [IO.load(uri) for uri in uris]
 
         analysed_imgs = [
             AnalysedImage(
