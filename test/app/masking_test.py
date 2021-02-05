@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import numpy as np
 
-from src.app import Masking
+from src.app.masking import Masking
 
 
 class MaskingTestCase(TestCase):
@@ -39,9 +39,9 @@ class MaskingTestCase(TestCase):
         def produces_a_mask_of_a_single_colour():
             mask = np.array(
                 [
-                    [0, 1, 0, 1, 0],
-                    [1, 1, 0, 1, 1],
-                    [0, 0, 1, 0, 0],
+                    [0, 255, 0, 255, 0],
+                    [255, 255, 0, 255, 255],
+                    [0, 0, 255, 0, 0],
                 ]
             )
             color = [123, 234, 45]
