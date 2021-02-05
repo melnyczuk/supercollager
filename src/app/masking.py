@@ -41,7 +41,6 @@ def _rotate(
         return np_img
 
     rotation = 90.0 if type(rotate) == bool else rotate
+    size = np_img.shape[:2][::-1]
 
-    return np.array(
-        Image.fromarray(np_img).rotate(rotation).resize(np_img.shape[:2][::-1])
-    )
+    return np.array(Image.fromarray(np_img).rotate(rotation).resize(size))

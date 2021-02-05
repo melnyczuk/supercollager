@@ -7,9 +7,9 @@ from src.app import Composition
 
 
 class CompositionTestCase(TestCase):
-    @mock.patch("src.app.ROI.crop_pil", side_effect=lambda x: x)
+    @mock.patch("src.app.ROI.crop", side_effect=lambda x: x)
     @describe
-    def test_layer_images(self, roi_crop_pil):
+    def test_layer_images(self, roi_crop):
         @it
         def makes_a_canvas_image_with_the_largest_possible_dimensions():
             imgs = [
@@ -22,6 +22,6 @@ class CompositionTestCase(TestCase):
 
             output = Composition.layer_images(imgs)
 
-            roi_crop_pil.assert_called()
+            roi_crop.assert_called()
             self.assertEqual(92, output.size[0])
             self.assertEqual(92, output.size[1])

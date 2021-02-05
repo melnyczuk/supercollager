@@ -15,4 +15,4 @@ class Composition:
         for img in imgs:
             canvas.alpha_composite(img)
 
-        return ROI.crop_pil(canvas)
+        return ROI.crop(canvas)

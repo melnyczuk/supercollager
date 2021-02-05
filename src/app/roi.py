@@ -10,30 +10,38 @@ Region = Tuple[int, int, int, int]
 
 class ROI:
     @staticmethod
-    def crop_np(
-        np_img: np.ndarray,
+    def crop(
+        img: Union[np.ndarray, ImageType],
         threshold: Union[int, None] = None,
-    ) -> np.ndarray:
-        (x0, y0, x1, y1) = ROI.get_bounding_box(np_img, threshold)
-        return np_img[y0:y1, x0:x1, :]
+    ) -> Union[np.ndarray, ImageType]:
+        is_np = isinstance(img, np.ndarray)
+        np_img = img if is_np else np.array(img)
+        (x0, y0, x1, y1) = _get_bounding_box(np_img, threshold)
+        roi = np_img[y0:y1, x0:x1, :]
+        return roi if is_np else Image.fromarray(roi)
 
-    @staticmethod
-    def crop_pil(
-        pil_img: ImageType,
-        threshold: Union[int, None] = None,
-    ) -> ImageType:
-        box = ROI.get_bounding_box(np.array(pil_img), threshold)
-        return pil_img.crop(box)
 
-    @staticmethod
-    def get_bounding_box(
-        np_img: np.ndarray,
-        threshold: Union[int, None] = None,
-    ) -> Region:
-        grey = _get_grey(np_img)
-        (x0, y0, w, h) = _get_roi(grey, threshold)
-        (x1, y1) = (x0 + w, y0 + h)
-        return (x0, y0, x1, y1)
+def _get_bounding_box(
+    np_img: np.ndarray,
+    threshold: Union[int, None] = None,
+) -> Region:
+    grey = _get_grey(np_img)
+    (x0, y0, w, h) = _get_roi(grey, threshold)
+    (x1, y1) = (x0 + w, y0 + h)
+    return (x0, y0, x1, y1)
+
+
+def _get_grey(np_img: np.ndarray) -> np.ndarray:
+    n_channels = np_img.shape[2]
+    if n_channels == 4:
+        return np_img[:, :, 3]
+    if n_channels == 3:
+        return cv2.cvtColor(np_img, cv2.COLOR_RGB2GRAY)
+    if n_channels == 2:
+        return cv2.cvtColor(np_img, cv2.COLOR_BAYER_GR2GRAY)
+    if n_channels == 1:
+        return np_img
+    raise ValueError("Numpy array has no colour channels")
 
 
 def _get_roi(
@@ -53,17 +61,7 @@ def _get_roi(
     return cv2.boundingRect(sorted_contours[0])
 
 
-def _get_grey(np_img: np.ndarray) -> np.ndarray:
-    if n_channels := np_img.shape[2] == 4:
-        return np_img[:, :, 3]
-    if n_channels == 3:
-        return cv2.cvtColor(np_img, cv2.COLOR_RGB2GRAY)
-    if n_channels == 2:
-        return cv2.cvtColor(np_img, cv2.COLOR_BAYER_GR2GRAY)
-    return np_img
-
-
 def _get_threshold(np_img: np.ndarray) -> int:
-    histogram = Image.fromarray(np_img).convert("L").histogram()
+    histogram = Image.fromarray(np_img).histogram()
     mode = max(*histogram)
     return histogram.index(mode)

@@ -1,6 +1,5 @@
 from test.utils import describe, each, it
-from unittest import TestCase
-from unittest.mock import patch
+from unittest import TestCase, mock
 
 import numpy as np
 
@@ -8,7 +7,7 @@ from src.app.masking import Masking
 
 
 class MaskingTestCase(TestCase):
-    @patch("random.randint", return_value=2)
+    @mock.patch("random.randint", return_value=2)
     @describe
     def test_to_block_mat(self, mock_randint):
         @each([True, False])

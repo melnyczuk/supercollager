@@ -32,9 +32,7 @@ def segment(
     return [
         LabelImage(
             label=ai.label,
-            pil_img=ROI.crop_pil(
-                Masking.apply_mask(ai.np_img, ai.mask, **kwargs)
-            ),
+            pil_img=ROI.crop(Masking.apply_mask(ai.np_img, ai.mask, **kwargs)),
         )
         for ai in tqdm(analysed_images)
     ]
