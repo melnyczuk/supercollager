@@ -3,6 +3,7 @@ from typing import Tuple, Union
 import cv2  # type: ignore
 import numpy as np
 from PIL import Image  # type: ignore
+from PIL.Image import Image as ImageType  # type: ignore
 
 Region = Tuple[int, int, int, int]
 
@@ -18,9 +19,9 @@ class ROI:
 
     @staticmethod
     def crop_pil(
-        pil_img: Image,
+        pil_img: ImageType,
         threshold: Union[int, None] = None,
-    ) -> Image:
+    ) -> ImageType:
         box = ROI.get_bounding_box(np.array(pil_img), threshold)
         return pil_img.crop(box)
 

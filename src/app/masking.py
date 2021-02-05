@@ -1,8 +1,9 @@
 import random
-from typing import Tuple
+from typing import Tuple, Union
 
 import numpy as np
-from PIL import Image  # type:ignore
+from PIL import Image  # type: ignore
+from PIL.Image import Image as ImageType  # type: ignore
 
 
 class Masking:
@@ -26,7 +27,7 @@ class Masking:
         return np.dstack((rgb, mask))  # type: ignore
 
     @staticmethod
-    def apply_mask(np_img: np.ndarray, mask: np.ndarray, **kwargs) -> Image:
+    def apply_mask(np_img: np.ndarray, mask: np.ndarray, **kwargs) -> ImageType:
         rotated_mask = _rotate(mask, **kwargs)
         rgba = np.dstack((np_img, rotated_mask))  # type: ignore
         return Image.fromarray(rgba)
@@ -34,16 +35,13 @@ class Masking:
 
 def _rotate(
     np_img: np.ndarray,
-    rotation: float = 0.0,
-    deform: bool = False,
+    rotate: Union[float, bool] = False,
 ) -> np.ndarray:
-    if not deform and not rotation:
+    if not rotate:
         return np_img
 
-    real_rotation = rotation if rotation else 90.0
+    rotation = 90.0 if type(rotate) == bool else rotate
 
     return np.array(
-        Image.fromarray(np_img)
-        .rotate(real_rotation)
-        .resize(np_img.shape[:2][::-1])
+        Image.fromarray(np_img).rotate(rotation).resize(np_img.shape[:2][::-1])
     )
