@@ -5,6 +5,7 @@ verify_ssl = true
 
 [dev-packages]
 black = "==20.8b1"
+coverage = "*"
 data-science-types = "*"
 flake8 = "*"
 isort = "*"
@@ -41,4 +42,5 @@ prod = "waitress-serve --ident='' --port=8080 src.server:server"
 sort = "isort --atomic ."
 test = "python -m unittest discover -s test -p '*_test.py' -b"
 test-cleanup = "find . -type f -name '*.pyc' -delete"
+test-coverage = "coverage run --source=src/app --omit=**/__init__.py -m unittest discover -s test -p '*_test.py' -b"
 typecheck = "mypy src"

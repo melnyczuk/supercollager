@@ -6,3 +6,5 @@ __pycache__
 *.pyc
 *.ds_store
 weights
+.coverage
+coverage

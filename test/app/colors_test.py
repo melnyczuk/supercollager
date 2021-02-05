@@ -1,14 +1,23 @@
 from random import randint
 from test.utils import describe, each, it
-from unittest import TestCase
-from unittest.mock import patch
+from unittest import TestCase, mock
 
 from src.app import Colors
 from src.app.colors import color_lookup
 
 
 class ColorsTestCase(TestCase):
-    @patch("random.randint")
+    @mock.patch("random.randint")
+    @describe
+    def test_pick(self, mock_randint):
+        @it
+        def picks_a_colour_from_the_lookup():
+            mock_randint.side_effect = [5]
+            expected = list(color_lookup.values())[5]
+            output = Colors.pick()
+            self.assertTupleEqual(expected, output)
+
+    @mock.patch("random.randint")
     @describe
     def test_as_list(self, mock_randint):
         @it
@@ -30,7 +39,7 @@ class ColorsTestCase(TestCase):
             output = Colors.as_list(length)
             self.assertEqual(len(lookup_vals), len(output))
 
-    @patch("random.randint", side_effect=[*range(100000)])
+    @mock.patch("random.randint", side_effect=[*range(100000)])
     @describe
     def test__get_rand_indicies(self, mock_randint):
         @it

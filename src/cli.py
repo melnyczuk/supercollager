@@ -2,9 +2,9 @@ import os
 from datetime import datetime
 from typing import List
 
-from .app import IO
-from .logger import logger
-from .pipelines import LabelImage, collage, segment
+from src.app import IO
+from src.logger import logger
+from src.pipelines import LabelImage, collage, segment
 
 VALID_FORMATS = ["jpg", "png", "jpeg", "tif", "tiff"]
 
@@ -32,19 +32,15 @@ def save(fn):
         now = datetime.now().strftime("%Y%m%d-%H:%M:%S")
         dir = kwargs.pop("dir", "./dump/output")
         fname = kwargs.pop("fname", now)
-        ext = kwargs.pop("ext", "png")
 
         uris = _parse_uris(kwargs.pop("uris", []))
 
         result: List[LabelImage] = fn(uris=uris, **kwargs)
 
-        for i, li in enumerate(result):
-            IO.save.image(
-                img=li.image,
-                fname=f"{fname}-{li.label}-{i}",
-                dir=dir,
-                ext=ext,
-            )
+        for i, label_image in enumerate(result):
+            img = label_image.pil_img
+            f = f"{fname}-{i}{label_image.label}"
+            IO.save(img, fname=f, dir=dir)
 
         logger.log(f"saved {len(result)} images to {dir}")
 

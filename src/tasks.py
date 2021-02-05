@@ -1,7 +1,7 @@
 from typing import Any, Dict, List
 
-from .celery import celery
-from .pipelines import LabelImage, collage, segment
+from src.celery import celery
+from src.pipelines import LabelImage, collage, segment
 
 
 def check(fn):

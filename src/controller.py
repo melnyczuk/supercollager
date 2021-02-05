@@ -5,10 +5,9 @@ from flask.json import jsonify
 
 from celery.app.base import Celery  # type: ignore
 from celery.result import AsyncResult  # type: ignore
-
-from .celery import celery
-from .logger import logger
-from .tasks import segment
+from src.celery import celery
+from src.logger import logger
+from src.tasks import segment
 
 routes = Blueprint("controller", __name__)
 

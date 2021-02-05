@@ -2,11 +2,12 @@ from dataclasses import dataclass
 from typing import Tuple
 
 from numpy import ndarray
+from PIL import Image  # type: ignore
 
 
 @dataclass
 class AnalysedImage:
-    img: ndarray
+    np_img: ndarray
     mask: ndarray
     label: str
 
@@ -19,9 +20,15 @@ class Bounds:
     bottom: int
 
 
+@dataclass(frozen=True)
+class LabelImage:
+    pil_img: Image
+    label: str = ""
+
+
 @dataclass
 class MaskBox:
-    frame: Tuple[int, int]
+    frame: Tuple[int, ...]
     classId: int
     score: float
     mask: ndarray

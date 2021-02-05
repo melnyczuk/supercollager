@@ -1,7 +1,7 @@
 import random
 from typing import List, Tuple
 
-from .color_lookup import color_lookup
+from src.app.colors.color_lookup import color_lookup
 
 ColorType = Tuple[int, int, int]
 
