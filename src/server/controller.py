@@ -1,20 +1,20 @@
 from typing import Any, Tuple, Union
 
+from celery.app.base import Celery  # type: ignore
+from celery.result import AsyncResult  # type: ignore
 from flask import Blueprint, request
 from flask.json import jsonify
 
-from celery.app.base import Celery  # type: ignore
-from celery.result import AsyncResult  # type: ignore
-from src.celery import celery
 from src.logger import logger
-from src.tasks import segment
+from src.server.celery import celery
+from src.server.tasks import Tasks
 
 routes = Blueprint("controller", __name__)
 
 
 @routes.route("/segment", methods=["POST"])
 def set_segment() -> Tuple[str, int]:
-    return set_task(segment, request.json)
+    return set_task(Tasks.segment, request.json)
 
 
 @routes.route("/segment/<id>", methods=["GET"])
