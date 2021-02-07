@@ -1,7 +1,7 @@
 from test.utils import describe, each, it
 from unittest import TestCase, mock
 
-from src.app.load import Load
+from src.app.load import Load, _parse_uris
 
 
 class LoadTestCase(TestCase):
@@ -33,3 +33,35 @@ class LoadTestCase(TestCase):
                     )
                     mock_BytesIO.assert_called_with("response content")
                     mock_Image_open.assert_called_with("some bytes")
+
+    @mock.patch("src.app.load.os")
+    @describe
+    def test__parse_uris(self, mock_os):
+        @it
+        def returns_a_list_with_a_single_uri_if_input_is_not_dir():
+            mock_os.path.isdir.return_value = False
+            input = ["./a-uri"]
+            output = _parse_uris(input)
+            self.assertListEqual(output, input)
+
+        @it
+        def returns_all_the_files_in_that_dir_if_input_is_dir():
+            mock_os.listdir.return_value = [
+                "file-1.jpg",
+                "file-2.png",
+                "file-3.txt",
+                "file-4.tif",
+            ]
+            mock_os.path.isdir.return_value = True
+            mock_os.path.join.side_effect = lambda x, y: x + "/" + y
+
+            input = ["./a-dir"]
+            output = _parse_uris(input)
+            self.assertListEqual(
+                output,
+                [
+                    "./a-dir/file-1.jpg",
+                    "./a-dir/file-2.png",
+                    "./a-dir/file-4.tif",
+                ],
+            )

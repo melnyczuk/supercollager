@@ -27,7 +27,7 @@ class Load:
         return [Load.uri(uri) for uri in _parse_uris(uris)]
 
 
-def _parse_uris(uris: List[str]) -> List[str]:
+def _parse_uris(input: List[str]) -> List[str]:
     return [
         uri
         for nested in (
@@ -38,7 +38,7 @@ def _parse_uris(uris: List[str]) -> List[str]:
                 for file in os.listdir(uri)
                 if file.lower().split(".")[-1] in VALID_EXTS
             ]
-            for uri in uris
+            for uri in input
         )
         for uri in nested
     ]
