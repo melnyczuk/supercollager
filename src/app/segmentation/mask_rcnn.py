@@ -1,15 +1,12 @@
 import os
+from dataclasses import dataclass
 from typing import List, Tuple
 
 import cv2  # type: ignore
 import numpy as np
-from PIL import Image  # type: ignore
 from tqdm.std import tqdm  # type:ignore
 
-from src.app.io import IO
-from src.app.masking import Masking
-from src.app.types import AnalysedImage, Bounds, MaskBox
-from src.logger import logger
+from src.app.types import AnalysedImage, Bounds, ImageType, MaskBox
 
 WEIGHTS_DIR = os.path.abspath("weights")
 CONFIG = "conf.pbtxt"
@@ -22,7 +19,7 @@ WEIGHTS = [
 ]
 
 
-def _load_net(m: int = 0) -> cv2.dnn_SegmentationModel:
+def _load_net(m: int = 0) -> cv2.dnn_Net:
     weights = os.path.join(WEIGHTS_DIR, WEIGHTS[m])
     conf = os.path.join(WEIGHTS_DIR, CONFIG)
     net = cv2.dnn.readNetFromTensorflow(weights, conf)
@@ -31,47 +28,34 @@ def _load_net(m: int = 0) -> cv2.dnn_SegmentationModel:
     return net
 
 
-net = _load_net()
-
 with open(os.path.join(WEIGHTS_DIR, CLASS_NAMES), "r") as file:
     coco_class_names = file.read().split("\n")
 
+net = _load_net()
+# model = cv2.dnn_SegmentationModel(net)
 
+
+@dataclass(frozen=True)
 class MaskRCNNSegmentation:
     @staticmethod
-    def run(
-        uris: List[str],
-        blocky: bool = False,
-    ) -> List[AnalysedImage]:
-        pil_imgs = [IO.load(uri) for uri in uris]
-
-        analysed_imgs = [
+    def run(imgs: List[ImageType]) -> List[AnalysedImage]:
+        return [
             AnalysedImage(
-                np_img=np.array(img, dtype=np.uint8),
-                mask=Masking.to_block_mat(
-                    _process_mask(mb),
-                    blocky,
-                ).astype(np.uint8),
+                img=img,
+                mask=_process_mask(mb),
                 label=coco_class_names[mb.classId],
             )
-            for img in tqdm(pil_imgs)
+            for img in tqdm(imgs)
             for mb in _get_maskboxes(img)
         ]
 
-        logger.log(
-            f"segmented {len(analysed_imgs)} images from {len(uris)} URIs finding {len(set(ai.label for ai in analysed_imgs))} different types of object"  # noqa: E501
-        )
 
-        return analysed_imgs
-
-
-def _get_maskboxes(pil_img: Image.Image) -> List[MaskBox]:
-    cv_img = np.array(pil_img)
-    blob = cv2.dnn.blobFromImage(cv_img)
+def _get_maskboxes(img: ImageType) -> List[MaskBox]:
+    blob = cv2.dnn.blobFromImage(img.np)
     net.setInput(blob)
     ([[boxes]], masks) = net.forward(["detection_out_final", "detection_masks"])
     return _match_masks_to_boxes(
-        cv_img.shape[:2], list(zip(boxes[:, 1:], masks))
+        img.np.shape[:2], list(zip(boxes[:, 1:], masks))
     )
 
 
