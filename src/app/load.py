@@ -7,8 +7,7 @@ import requests
 from PIL import Image  # type: ignore
 
 from src.app.types import ImageType
-
-VALID_EXTS = ["jpg", "png", "jpeg", "tif", "tiff"]
+from src.constants import VALID_EXTS
 
 
 @dataclass(frozen=True)

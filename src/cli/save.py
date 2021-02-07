@@ -2,8 +2,7 @@ import os
 from typing import List, Union
 
 from src.app.types import ImageType, LabelImage
-
-VALID_EXTS = ["jpg", "png", "jpeg", "tif", "tiff"]
+from src.constants import VALID_EXTS
 
 
 class Save:

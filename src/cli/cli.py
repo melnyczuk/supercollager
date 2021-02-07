@@ -2,9 +2,26 @@ from fire import Fire  # type:ignore
 
 from src.app import App
 from src.cli.save import Save
+from src.constants import VALID_EXTS
 
 
 class CLI:
+    f"""
+
+    valid file extensions: {VALID_EXTS}
+    """
+
+    def __init__(self):
+        print(
+            """
+               ____                          ____                 
+              / ____ _____ ___ ___________  / / ___ ____ ____ ____
+             _\ \/ // / _ / -_/ __/ __/ _ \/ / / _ `/ _ `/ -_/ __/
+            /___/\_,_/ .__\__/_/  \__/\___/_/_/\_,_/\_, /\__/_/   
+                    /_/                            /___/          
+        """
+        )
+
     @staticmethod
     def collage(
         *inputs: str,
