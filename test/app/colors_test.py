@@ -2,8 +2,7 @@ from random import randint
 from test.utils import describe, each, it
 from unittest import TestCase, mock
 
-from src.app import Colors
-from src.app.colors import color_lookup
+from src.app.colors import Colors, color_lookup
 
 
 class ColorsTestCase(TestCase):

@@ -1,4 +1,4 @@
-from typing import Any, Tuple, Union
+from typing import Any, Optional, Tuple
 
 from celery.app.base import Celery  # type: ignore
 from celery.result import AsyncResult  # type: ignore
@@ -48,8 +48,8 @@ def five_hundred(e: object) -> Tuple[str, int]:
 
 
 def make_response(
-    data: Union[Any, None] = None,
-    error: Union[str, None] = None,
+    data: Optional[Any] = None,
+    error: Optional[str] = None,
     status: int = 200,
 ) -> Tuple[str, int]:
     logger.request(status)
