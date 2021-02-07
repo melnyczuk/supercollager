@@ -1,5 +1,4 @@
 import os
-from dataclasses import dataclass
 from io import BytesIO
 from typing import List
 
@@ -10,7 +9,6 @@ from src.app.types import ImageType
 from src.constants import VALID_EXTS
 
 
-@dataclass(frozen=True)
 class Load:
     @staticmethod
     def uri(uri: str) -> ImageType:

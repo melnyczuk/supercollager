@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from typing import List, Union
 
 from numpy.random import randint
@@ -14,7 +13,6 @@ from src.app.types import ImageType, LabelImage
 from src.logger import logger
 
 
-@dataclass(frozen=True)
 class App:
     @staticmethod
     def segment(

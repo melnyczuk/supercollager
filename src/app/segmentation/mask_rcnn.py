@@ -1,5 +1,4 @@
 import os
-from dataclasses import dataclass
 from typing import List, Tuple
 
 import cv2  # type: ignore
@@ -35,7 +34,6 @@ net = _load_net()
 # model = cv2.dnn_SegmentationModel(net)
 
 
-@dataclass(frozen=True)
 class MaskRCNNSegmentation:
     @staticmethod
     def run(imgs: List[ImageType]) -> List[AnalysedImage]:
