@@ -41,7 +41,7 @@ class App:
     ) -> ImageType:
         label_imgs = App.segment(uris=uris, rotate=rotate)
         imgs = [li.img for li in label_imgs]
-        bg = randint(5, 15)
+        bg = int(randint(5, 15))
         comp = Composition.layer_images(imgs=imgs, background=bg)
         return Post.process(comp)
 
