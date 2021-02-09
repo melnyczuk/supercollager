@@ -23,7 +23,7 @@ jobs:
     - name: Install
       run: |
         python -m pip install --upgrade pipenv
-        pipenv install
+        pipenv install --ignore-pipfile
     - name: Sort
       run: pipenv run sort
     - name: Format
