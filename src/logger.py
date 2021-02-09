@@ -1,10 +1,8 @@
 import logging
-from dataclasses import dataclass
 
 from flask import request
 
 
-@dataclass(frozen=True)
 class Logger:
     logger: logging.Logger = logging.getLogger()
     handler: logging.StreamHandler = logging.StreamHandler()

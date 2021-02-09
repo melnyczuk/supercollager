@@ -1,7 +1,7 @@
 from typing import Any, Dict, List
 
-from src.celery import celery
-from src.pipelines import LabelImage, collage, segment
+from src.app import App, LabelImage
+from src.server.celery import celery
 
 
 def check(fn):
@@ -18,5 +18,5 @@ def check(fn):
 
 
 class Tasks:
-    collage = celery.task(check(collage))
-    segment = celery.task(check(segment))
+    collage = celery.task(check(App.collage))
+    segment = celery.task(check(App.segment))
