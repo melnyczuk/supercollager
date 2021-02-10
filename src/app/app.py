@@ -23,7 +23,8 @@ class App:
         logger.log(f"loaded {len(imgs)} images")
 
         logger.log("analysing images:")
-        analysed_images = Segmentation.mask_rcnn(imgs)
+
+        analysed_images = Segmentation().mask_rcnn(imgs)
         logger.log(
             f"found {len(analysed_images)} segments in {len(imgs)} URIs finding {len(set(ai.label for ai in analysed_images))} different types of object"  # noqa: E501
         )
