@@ -1,8 +1,8 @@
+import os
+import pickle
 from test.utils import describe, it
 from unittest import TestCase
 
-import os
-import pickle
 import numpy as np
 
 from src.app import App
@@ -11,30 +11,48 @@ from src.app import App
 class End2EndTestCase(TestCase):
     @describe
     def test_e2e(self):
+        show = int(os.getenv("SHOW", 0))
+        update = int(os.getenv("UPDATE", 0))
         e2e_dir = os.path.abspath("test/e2e")
 
         @it
         def segments():
-            output = App.segment([f"{e2e_dir}/otter.jpeg"])
-            with open(
-                os.path.abspath(f"{e2e_dir}/segment.pb"), "rb"
-            ) as fileObject:
-                correct = pickle.load(fileObject)
+            pickle_path = os.path.abspath(f"{e2e_dir}/segment.pb")
+            output = [seg.img for seg in App.segment([e2e_dir])]
 
-            output[0].img.pil.show()
-            output[1].img.pil.show()
-
-            np.testing.assert_array_equal(output[0].img.np, correct[0].img.np)
-            np.testing.assert_array_equal(output[1].img.np, correct[1].img.np)
+            if show:
+                _show(output)
+            elif update:
+                _update(output, pickle_path)
+            else:
+                _assert_test(output, pickle_path)
 
         @it
         def collages():
-            output = App.collage([f"{e2e_dir}/otter.jpeg"])
-            with open(
-                os.path.abspath(f"{e2e_dir}/collage.pb"), "rb"
-            ) as fileObject:
-                correct = pickle.load(fileObject)
+            pickle_path = os.path.abspath(f"{e2e_dir}/collage.pb")
+            output = [App.collage([f"{e2e_dir}/otter.jpeg"])]
 
-            output.pil.show()
+            if show:
+                _show(output)
+            elif update:
+                _update(output, pickle_path)
+            else:
+                _assert_test(output, pickle_path)
 
-            np.testing.assert_array_equal(output.np, correct.np)
+
+def _show(output):
+    for out in output:
+        out.pil.show()
+    return
+
+
+def _update(output, path):
+    with open(path, "wb") as fileObject:
+        pickle.dump(output, fileObject)
+
+
+def _assert_test(output, path):
+    with open(path, "rb") as fileObject:
+        correct = pickle.load(fileObject)
+        for i, out in enumerate(output):
+            np.testing.assert_array_equal(out.np, correct[i].np)
