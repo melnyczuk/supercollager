@@ -1,6 +1,7 @@
 import random
 from typing import Tuple, Union
 
+import cv2  # type: ignore
 import numpy as np
 
 from src.app.transform import Transform
@@ -36,3 +37,7 @@ class Masking:
         alpha = Transform.rotate(ImageType(mask), rotate)
         rgba = np.dstack((img.np, alpha.np))  # type: ignore
         return ImageType(rgba)
+
+    @staticmethod
+    def upscale(mask: np.ndarray, size: Tuple[int, int]) -> np.ndarray:
+        return cv2.resize(mask, dsize=size, interpolation=cv2.INTER_LINEAR)

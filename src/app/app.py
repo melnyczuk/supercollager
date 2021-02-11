@@ -16,7 +16,7 @@ from src.logger import logger
 class App:
     @staticmethod
     def segment(
-        uris: List[str] = [],
+        uris: List[str],
         rotate: Union[float, bool] = False,
     ) -> List[LabelImage]:
         imgs = Load.uris(uris)
@@ -40,7 +40,7 @@ class App:
         uris: List[str],
         rotate: Union[float, bool] = False,
     ) -> ImageType:
-        label_imgs = App.segment(uris=uris, rotate=rotate)
+        label_imgs = App.segment(uris, rotate=rotate)
         imgs = [li.img for li in label_imgs]
         bg = int(randint(5, 15))
         comp = Composition.layer_images(imgs=imgs, background=bg)
