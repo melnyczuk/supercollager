@@ -5,6 +5,7 @@ import cv2  # type: ignore
 import numpy as np
 from tqdm.std import tqdm  # type:ignore
 
+from src.app.masking import Masking
 from src.app.types import AnalysedImage, Bounds, ImageType, MaskBox
 
 WEIGHTS_DIR = os.path.abspath("weights")
@@ -66,7 +67,7 @@ def _match_masks_to_boxes(
         MaskBox(
             frame=frame,
             classId=int(box[0]),
-            mask=masks[int(box[0])],
+            mask=(masks[int(box[0])] * 255).astype(np.uint8),
             score=box[1],
             bounds=_calc_bounds(frame, box),
         )
@@ -77,22 +78,15 @@ def _match_masks_to_boxes(
 
 def _process_mask(maskbox: MaskBox) -> np.ndarray:
     arr = np.zeros(maskbox.frame)
-    arr[
-        maskbox.bounds.top : maskbox.bounds.bottom,  # noqa: E203
-        maskbox.bounds.left : maskbox.bounds.right,  # noqa: E203
-    ] = _resize_mask(maskbox)
-    return arr
-
-
-def _resize_mask(maskbox: MaskBox) -> np.ndarray:
     target_size = (
         maskbox.bounds.right - maskbox.bounds.left,
         maskbox.bounds.bottom - maskbox.bounds.top,
     )
-    return (
-        cv2.resize(maskbox.mask, target_size, interpolation=cv2.INTER_NEAREST)
-        * 255
-    ).astype(np.uint8)
+    arr[
+        maskbox.bounds.top : maskbox.bounds.bottom,  # noqa: E203
+        maskbox.bounds.left : maskbox.bounds.right,  # noqa: E203
+    ] = Masking.upscale(maskbox.mask, target_size)
+    return arr
 
 
 def _calc_bounds(frame: Tuple[int, ...], box: np.ndarray) -> Bounds:
