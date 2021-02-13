@@ -1,22 +1,26 @@
-from typing import Any, Dict, List
+from typing import Any, Dict
 
-from src.app import App, LabelImage
+from src.app import App
 from src.server.celery import celery
 
 
-def check(fn):
+class Tasks:
+    @celery.task
     @staticmethod
-    def f(data: Dict[str, Any]) -> List[LabelImage]:
+    def collage(data: Dict[str, Any]) -> Dict[str, Any]:
         if "uris" not in data.keys():
             raise ValueError("uris missing")
-        try:
-            return fn(**data)
-        except Exception as e:
-            raise e
+        uris = data["uris"]
+        rotate = data.get("rotate", None)
+        output = App.collage(uris, rotate=rotate)
+        return {"result": [output.np]}
 
-    return f
-
-
-class Tasks:
-    collage = celery.task(check(App.collage))
-    segment = celery.task(check(App.segment))
+    @celery.task
+    @staticmethod
+    def segment(data: Dict[str, Any]) -> Dict[str, Any]:
+        if "uris" not in data.keys():
+            raise ValueError("uris missing")
+        uris = data["uris"]
+        rotate = data.get("rotate", None)
+        output = App.segment(uris, rotate=rotate)
+        return {"result": output}

@@ -6,7 +6,7 @@ from tqdm.std import tqdm  # type: ignore
 from src.app.composition import Composition
 from src.app.load import Load
 from src.app.masking import Masking
-from src.app.post import Post
+from src.app.post_process import PostProcess
 from src.app.roi import ROI
 from src.app.segmentation import Segmentation
 from src.app.types import ImageType, LabelImage
@@ -31,7 +31,10 @@ class App:
 
         logger.log("segmenting images:")
         return [
-            LabelImage(img=_mask_crop(ai.img, ai.mask, rotate), label=ai.label)
+            LabelImage(
+                img=App.__apply_segmentation(ai.img, ai.mask, rotate),
+                label=ai.label,
+            )
             for ai in tqdm(analysed_images)
         ]
 
@@ -44,9 +47,10 @@ class App:
         imgs = [li.img for li in label_imgs]
         bg = int(randint(5, 15))
         comp = Composition.layer_images(imgs=imgs, background=bg)
-        return Post.process(comp)
+        post = PostProcess(comp).contrast(1.2).color(1.2)
+        return ImageType(post.img)
 
-
-def _mask_crop(img, mask, rotate):
-    masked_img = Masking.apply_mask(img, mask, rotate=rotate)
-    return ROI.crop(masked_img)
+    @staticmethod
+    def __apply_segmentation(img, mask, rotate):
+        masked_img = Masking.apply_mask(img, mask, rotate=rotate)
+        return ROI.crop(masked_img)

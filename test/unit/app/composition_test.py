@@ -8,7 +8,7 @@ from src.app.types import ImageType
 
 
 class CompositionTestCase(TestCase):
-    @mock.patch("src.app.ROI.crop", side_effect=lambda x: x)
+    @mock.patch("src.app.composition.ROI.crop", side_effect=lambda x: x)
     @describe
     def test_layer_images(self, roi_crop):
         @it

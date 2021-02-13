@@ -4,6 +4,7 @@ from unittest import TestCase, mock
 import numpy as np
 
 from src.app.masking import Masking
+from src.app.types import ImageType
 
 
 class MaskingTestCase(TestCase):
@@ -71,6 +72,140 @@ class MaskingTestCase(TestCase):
             )
             output = Masking.to_rgba(mask, color)
             np.testing.assert_array_equal(expected, output)
+
+    @describe
+    def test_apply_mask(self):
+        @it
+        def applies_a_mask_without_rotating():
+            mask = np.array(
+                [
+                    [0, 255, 0, 255, 0],
+                    [255, 255, 0, 255, 255],
+                    [0, 0, 255, 0, 0],
+                ]
+            )
+
+            arr = np.array(
+                [
+                    [
+                        [125, 255, 0],
+                        [0, 255, 125],
+                        [125, 255, 0],
+                        [0, 255, 125],
+                        [125, 255, 0],
+                    ],
+                    [
+                        [255, 125, 0],
+                        [255, 0, 125],
+                        [255, 0, 125],
+                        [255, 125, 0],
+                        [255, 0, 125],
+                    ],
+                    [
+                        [0, 125, 255],
+                        [125, 0, 255],
+                        [0, 125, 255],
+                        [125, 0, 255],
+                        [0, 125, 255],
+                    ],
+                ]
+            )
+
+            expected = np.array(
+                [
+                    [
+                        [125, 255, 0, 0],
+                        [0, 255, 125, 255],
+                        [125, 255, 0, 0],
+                        [0, 255, 125, 255],
+                        [125, 255, 0, 0],
+                    ],
+                    [
+                        [255, 125, 0, 255],
+                        [255, 0, 125, 255],
+                        [255, 0, 125, 0],
+                        [255, 125, 0, 255],
+                        [255, 0, 125, 255],
+                    ],
+                    [
+                        [0, 125, 255, 0],
+                        [125, 0, 255, 0],
+                        [0, 125, 255, 255],
+                        [125, 0, 255, 0],
+                        [0, 125, 255, 0],
+                    ],
+                ]
+            )
+
+            img = ImageType(arr)
+            out = Masking.apply_mask(img, mask)
+            np.testing.assert_array_equal(expected, out.np)
+
+        @it
+        def applies_a_mask_with_rotating():
+            mask = np.array(
+                [
+                    [0, 255, 0, 255, 0],
+                    [255, 255, 0, 255, 255],
+                    [0, 0, 255, 0, 0],
+                ]
+            )
+
+            arr = np.array(
+                [
+                    [
+                        [125, 255, 0],
+                        [0, 255, 125],
+                        [125, 255, 0],
+                        [0, 255, 125],
+                        [125, 255, 0],
+                    ],
+                    [
+                        [255, 125, 0],
+                        [255, 0, 125],
+                        [255, 0, 125],
+                        [255, 125, 0],
+                        [255, 0, 125],
+                    ],
+                    [
+                        [0, 125, 255],
+                        [125, 0, 255],
+                        [0, 125, 255],
+                        [125, 0, 255],
+                        [0, 125, 255],
+                    ],
+                ]
+            )
+
+            expected = np.array(
+                [
+                    [
+                        [125, 255, 0, 0],
+                        [0, 255, 125, 255],
+                        [125, 255, 0, 255],
+                        [0, 255, 125, 0],
+                        [125, 255, 0, 0],
+                    ],
+                    [
+                        [255, 125, 0, 0],
+                        [255, 0, 125, 0],
+                        [255, 0, 125, 0],
+                        [255, 125, 0, 255],
+                        [255, 0, 125, 0],
+                    ],
+                    [
+                        [0, 125, 255, 0],
+                        [125, 0, 255, 255],
+                        [0, 125, 255, 255],
+                        [125, 0, 255, 0],
+                        [0, 125, 255, 0],
+                    ],
+                ]
+            )
+
+            img = ImageType(arr)
+            out = Masking.apply_mask(img, mask, True)
+            np.testing.assert_array_equal(expected, out.np)
 
     @describe
     def test_upscale(self):
