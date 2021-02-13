@@ -18,13 +18,9 @@ class DataclassJsonEncoder(json.JSONEncoder):
             return json.JSONEncoder.default(self, obj)
 
 
-def dumps(obj: Any) -> str:
-    return json.dumps(obj, cls=DataclassJsonEncoder)
-
-
 register(
     "dataclassjson",
-    dumps,
+    lambda obj: json.dumps(obj, cls=DataclassJsonEncoder),
     json.loads,
     content_type="application/json",
     content_encoding="utf-8",

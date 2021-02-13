@@ -9,7 +9,7 @@ ColorType = Tuple[int, int, int]
 class Colors:
     @staticmethod
     def pick() -> ColorType:
-        return list(color_lookup.values())[_randIndex()]
+        return list(color_lookup.values())[Colors.__randIndex()]
 
     @staticmethod
     def as_list(length: int) -> List[ColorType]:
@@ -30,11 +30,11 @@ class Colors:
             short_fall: List[int] = []
 
             while len(short_fall) < length - len(existing):
-                if (x := _randIndex()) not in existing:
+                if (x := Colors.__randIndex()) not in existing:
                     short_fall.append(x)
 
             return existing + short_fall
 
-
-def _randIndex() -> int:
-    return random.randint(0, len(color_lookup) - 1)
+    @staticmethod
+    def __randIndex() -> int:
+        return random.randint(0, len(color_lookup) - 1)

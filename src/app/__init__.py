@@ -1,1 +1,1 @@
-from src.app.app import *  # noqa: F401 F403
+from src.app.app import App  # noqa: F401 F403

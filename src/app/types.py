@@ -17,14 +17,14 @@ class ImageType:
         self.channels = self.np.shape[2] if len(self.np.shape) > 2 else 1
 
 
-@dataclass
+@dataclass(frozen=True)
 class AnalysedImage:
     img: ImageType
     mask: np.ndarray
     label: str
 
 
-@dataclass
+@dataclass(frozen=True)
 class Bounds:
     left: int
     top: int
@@ -38,7 +38,7 @@ class LabelImage:
     label: str = ""
 
 
-@dataclass
+@dataclass(frozen=True)
 class MaskBox:
     frame: Tuple[int, ...]
     classId: int
