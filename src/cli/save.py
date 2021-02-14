@@ -11,17 +11,12 @@ class Save:
 
     def one(
         self: "Save",
-        image: ImageType,
+        img: ImageType,
         index: int = None,
-        label: str = None,
     ) -> None:
-        ext = "png" if image.channels == 4 else "jpg"
-        name = (
-            Save.__remove_ext(self.fname)
-            + Save.__maybe_append(index)
-            + Save.__maybe_append(label)
-        )
-        image.pil.save(f"{os.path.join(self.dir, name)}.{ext}")
+        ext = "png" if img.channels == 4 else "jpg"
+        name = Save.__remove_ext(self.fname) + Save.__maybe_append(index)
+        img.pil.save(f"{os.path.join(self.dir, name)}.{ext}")
         return
 
     def many(self: "Save", images: List[ImageType]) -> None:

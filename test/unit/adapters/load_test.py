@@ -1,7 +1,7 @@
 from test.utils import describe, each, it
 from unittest import TestCase, mock
 
-from src.app.load import Load, _parse_uris
+from src.adapters.load import Load, _parse_uris
 
 
 class LoadTestCase(TestCase):

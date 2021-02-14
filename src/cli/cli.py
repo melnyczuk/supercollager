@@ -1,8 +1,10 @@
 from fire import Fire  # type:ignore
 
+from src.adapters.load import Load
 from src.app import App
 from src.cli.save import Save
 from src.constants import VALID_EXTS
+from src.logger import Logger
 
 
 class CLI:
@@ -21,9 +23,10 @@ class CLI:
                     /_/                            /___/          
         """  # noqa
         )
+        self.logger = Logger()
 
-    @staticmethod
     def collage(
+        self: "CLI",
         *inputs: str,
         fname: str = None,
         dir: str = None,
@@ -39,11 +42,15 @@ class CLI:
             --fname: a file name to save as  (required)
         """
         save = Save(fname=fname, dir=dir)
-        img = App.collage(list(inputs), **kwargs)
+        imgs = Load.uris(inputs)
+        self.logger.log(f"loaded {len(imgs)} images")
+        self.logger.log("collaging images:")
+        img = App.collage(imgs, **kwargs)
         save.one(img)
 
     @staticmethod
     def segment(
+        self: "CLI",
         *inputs: str,
         fname: str = None,
         dir: str = None,
@@ -59,7 +66,11 @@ class CLI:
             --fname: a file name to save as  (required)
         """
         save = Save(fname=fname, dir=dir)
-        segments = App.segment(list(inputs), **kwargs)
+        imgs = Load.uris(inputs)
+        self.logger.log(f"loaded {len(imgs)} images")
+        self.logger.log("segmenting images:")
+        segments = App.segment(imgs, **kwargs)
+        self.logger.log(f"found {len(segments)} segments in {len(imgs)} URIs")
         save.many(segments)
 
 

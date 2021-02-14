@@ -1,6 +1,6 @@
 import os
 from io import BytesIO
-from typing import List
+from typing import Iterable, List
 
 import requests
 from PIL import Image  # type: ignore
@@ -20,11 +20,11 @@ class Load:
         return ImageType(Image.open(resource).convert("RGB"))
 
     @staticmethod
-    def uris(uris: List[str]) -> List[ImageType]:
+    def uris(uris: Iterable[str]) -> List[ImageType]:
         return [Load.uri(uri) for uri in _parse_uris(uris)]
 
 
-def _parse_uris(input: List[str]) -> List[str]:
+def _parse_uris(input: Iterable[str]) -> List[str]:
     return [
         uri
         for nested in (

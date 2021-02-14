@@ -5,6 +5,7 @@ from unittest import TestCase
 
 import numpy as np
 
+from src.adapters.load import Load
 from src.app import App
 
 
@@ -14,11 +15,12 @@ class End2EndTestCase(TestCase):
         show = int(os.getenv("SHOW", 0))
         update = int(os.getenv("UPDATE", 0))
         e2e_dir = os.path.abspath("test/e2e")
+        inputs = Load.uris([e2e_dir])
 
         @it
         def segments():
             pickle_path = os.path.abspath(f"{e2e_dir}/segment.pb")
-            output = [seg.img for seg in App.segment([e2e_dir])]
+            output = App.segment(inputs)
 
             if show:
                 _show(output)
@@ -30,7 +32,7 @@ class End2EndTestCase(TestCase):
         @it
         def collages():
             pickle_path = os.path.abspath(f"{e2e_dir}/collage.pb")
-            output = [App.collage([f"{e2e_dir}/otter.jpeg"])]
+            output = [App.collage(inputs)]
 
             if show:
                 _show(output)
