@@ -3,8 +3,8 @@ from unittest import TestCase, mock
 
 from PIL import Image
 
+from src.app.image_type import ImageType
 from src.app.post_process import PostProcess
-from src.app.types import ImageType
 
 
 class PostProcessTestCase(TestCase):

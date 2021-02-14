@@ -1,6 +1,6 @@
 from typing import Union
 
-from src.app.types import ImageType
+from src.app.image_type import ImageType
 
 
 class Transform:

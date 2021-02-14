@@ -2,8 +2,8 @@ from typing import List
 
 from PIL import Image  # type: ignore
 
+from src.app.image_type import ImageType
 from src.app.roi import ROI
-from src.app.types import ImageType
 
 
 class Composition:

@@ -4,13 +4,13 @@ from unittest import TestCase, mock
 import numpy as np
 from PIL import Image
 
-from src.app.types import ImageType
+from src.app.image_type import ImageType
 from src.cli.save import Save
 
 
 class SaveTestCase(TestCase):
     @mock.patch("os.path.isdir", return_value=True)
-    @mock.patch("src.app.types.Image.Image.save")
+    @mock.patch("src.app.image_type.Image.Image.save")
     @describe
     def test_save_one(self, mock_Image_save, mock_isdir):
         @each(
@@ -45,18 +45,15 @@ class SaveTestCase(TestCase):
 
         @each(
             [
-                ({"label": None, "index": None}, "./dir/fname.png"),
-                ({"label": None, "index": 4}, "./dir/fname-4.png"),
-                ({"label": "test", "index": None}, "./dir/fname-test.png"),
-                ({"label": "toast", "index": 6}, "./dir/fname-6-toast.png"),
+                (None, "./dir/fname.png"),
+                (4, "./dir/fname-4.png"),
             ]
         )
-        def maybe_appends_label_and_index(params):
-            kwargs, outpath = params
+        def maybe_appends_index(params):
+            index, outpath = params
             Save(fname="fname", dir="./dir").one(
                 ImageType(np.ones((2, 2, 4))),
-                index=kwargs["index"],
-                label=kwargs["label"],
+                index=index,
             )
             mock_Image_save.assert_called_with(outpath)
 

@@ -4,7 +4,7 @@ from unittest import TestCase
 import numpy as np
 from PIL import Image
 
-from src.app.types import ImageType
+from src.app.image_type import ImageType
 
 
 class ImageTypeTestCase(TestCase):

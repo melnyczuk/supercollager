@@ -5,7 +5,7 @@ from typing import List
 import requests
 from PIL import Image  # type: ignore
 
-from src.app.types import ImageType
+from src.app.image_type import ImageType
 from src.constants import VALID_EXTS
 
 
