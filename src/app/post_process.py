@@ -1,7 +1,7 @@
 from PIL import ImageEnhance, ImageOps  # type: ignore
 from PIL.Image import Image as PilImage  # type: ignore
 
-from src.app.types import ImageType
+from src.app.image_type import ImageType
 
 
 class PostProcess:

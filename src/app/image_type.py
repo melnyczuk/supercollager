@@ -1,5 +1,4 @@
-from dataclasses import dataclass
-from typing import Tuple, Union
+from typing import Union
 
 import numpy as np
 from PIL import Image  # type: ignore
@@ -15,26 +14,3 @@ class ImageType:
         self.np = np.array(self.pil)
         self.dimensions = self.pil.size
         self.channels = self.np.shape[2] if len(self.np.shape) > 2 else 1
-
-
-@dataclass(frozen=True)
-class AnalysedImage:
-    img: ImageType
-    mask: np.ndarray
-
-
-@dataclass(frozen=True)
-class Bounds:
-    left: int
-    top: int
-    right: int
-    bottom: int
-
-
-@dataclass(frozen=True)
-class MaskBox:
-    frame: Tuple[int, ...]
-    classId: int
-    score: float
-    mask: np.ndarray
-    bounds: Bounds

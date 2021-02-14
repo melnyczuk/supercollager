@@ -4,8 +4,8 @@ from typing import Tuple, Union
 import cv2  # type: ignore
 import numpy as np
 
+from src.app.image_type import ImageType
 from src.app.transform import Transform
-from src.app.types import ImageType
 
 
 class Masking:

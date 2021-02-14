@@ -4,7 +4,7 @@ from unittest import TestCase, mock
 import numpy as np
 
 from src.app.masking import Masking
-from src.app.types import ImageType
+from src.app.image_type import ImageType
 
 
 class MaskingTestCase(TestCase):
