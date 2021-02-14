@@ -4,8 +4,8 @@ from unittest import TestCase, mock
 import numpy as np
 from PIL import Image
 
-from src.app.roi import ROI
 from src.app.image_type import ImageType
+from src.app.roi import ROI
 
 
 class ROITestCase(TestCase):
