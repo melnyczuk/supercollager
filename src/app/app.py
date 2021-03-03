@@ -6,7 +6,6 @@ from src.app.composition import Composition
 from src.app.image_type import ImageType
 from src.app.post_process import PostProcess
 from src.app.segmentation import Segmentation
-from src.logger import logger
 
 
 class App:
@@ -15,13 +14,7 @@ class App:
         imgs: List[ImageType],
         rotate: Union[float, bool] = False,
     ) -> List[ImageType]:
-        logger.log(f"loaded {len(imgs)} images")
-
-        logger.log("analysing images:")
-
-        segments = Segmentation().mask_rcnn(imgs, rotate=rotate)
-        logger.log(f"found {len(segments)} segments in {len(imgs)} URIs")
-        return segments
+        return Segmentation().mask_rcnn(imgs, rotate=rotate)
 
     @staticmethod
     def collage(
