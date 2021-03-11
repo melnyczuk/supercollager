@@ -34,7 +34,7 @@ class Adapter:
                     yield data
             pass
         if input.startswith("http"):
-            for data in UrlAdapter.load(input):
+            for data in UrlAdapter.scrape_site(input):
                 yield data
             pass
         pass
