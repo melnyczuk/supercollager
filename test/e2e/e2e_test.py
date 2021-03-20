@@ -4,6 +4,7 @@ from test.utils import describe, it
 from unittest import TestCase
 
 import numpy as np
+from tqdm.std import tqdm  # type:ignore
 
 from src.adapter import Adapter
 from src.app import App
@@ -15,12 +16,13 @@ class End2EndTestCase(TestCase):
         show = int(os.getenv("SHOW", 0))
         update = int(os.getenv("UPDATE", 0))
         e2e_dir = os.path.abspath("test/e2e")
-        inputs = Adapter.load(e2e_dir)
+        image = Adapter.load(f"{e2e_dir}/otter.jpeg")
+        video = Adapter.video(f"{e2e_dir}/otter.mp4")
 
         @it
         def segments():
             pickle_path = os.path.abspath(f"{e2e_dir}/segment.pb")
-            output = App.segment(inputs)
+            output = list(tqdm(App.segment(image)))
 
             if show:
                 _show(output)
@@ -32,7 +34,19 @@ class End2EndTestCase(TestCase):
         @it
         def collages():
             pickle_path = os.path.abspath(f"{e2e_dir}/collage.pb")
-            output = [App.collage(inputs)]
+            output = list(tqdm([App.collage(image)]))
+            if show:
+                _show(output)
+            elif update:
+                _update(output, pickle_path)
+            else:
+                _assert_test(output, pickle_path)
+
+        @it
+        def segments_videos():
+            pickle_path = os.path.abspath(f"{e2e_dir}/video.pb")
+            output = list(tqdm(App.video(video)))
+
             if show:
                 _show(output)
             elif update:

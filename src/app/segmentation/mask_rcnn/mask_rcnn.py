@@ -1,9 +1,8 @@
 import os
-from typing import List, Union
+from typing import Iterable, List, Union
 
 import cv2  # type: ignore
 import numpy as np
-from tqdm.std import tqdm  # type:ignore
 
 from src.app.image_type import ImageType
 from src.app.masking import Masking
@@ -28,33 +27,51 @@ class MaskRCNN:
         self.__load_net()
         # self.model = cv2.dnn_SegmentationModel(net)
 
-    def run(
+    def images(
         self: "MaskRCNN",
         imgs: List[ImageType],
         rotate: Union[float, bool] = False,
-    ) -> List[ImageType]:
-        return [
-            ROI.crop(Masking.apply_mask(img=img, mask=mask, rotate=rotate))
-            for img in tqdm(imgs)
-            for mask in self.__analyse(img)
-        ]
+    ) -> Iterable[ImageType]:
+        for img in imgs:
+            for mask in self.__analyse(img.np):
+                yield ROI.crop(
+                    Masking.apply_mask(img=img, mask=mask, rotate=rotate)
+                )
+        return
+
+    def video(
+        self: "MaskRCNN", video: cv2.VideoCapture
+    ) -> Iterable[np.ndarray]:
+        empty = np.zeros((int(video.get(3)), int(video.get(4))), dtype=np.uint8)
+
+        while video.isOpened():
+            ret, frame = video.read()
+            if not ret:
+                break
+            try:
+                mask, *_ = self.__analyse(frame, 0.3)
+                yield mask.astype(np.uint8)
+            except:
+                yield empty
+
+        video.release()
+        return
 
     def __analyse(
         self: "MaskRCNN",
-        img: ImageType,
-        thresh: float = 0.0,
-    ) -> List[np.ndarray]:
-        blob = cv2.dnn.blobFromImage(img.np)
+        frame: np.ndarray,
+        confidence_threshold: float = 0.0,
+    ) -> Iterable[np.ndarray]:
+        blob = cv2.dnn.blobFromImage(frame)
         self.net.setInput(blob)
         ([[boxes]], masks) = self.net.forward(
             ["detection_out_final", "detection_masks"]
         )
-        shape = (img.np.shape[0], img.np.shape[1])
-        return [
-            MaskBox(shape=shape, box=box, masks=masks).mask
-            for box, masks in zip(boxes[:, 1:], masks)
-            if box[1] > thresh
-        ]
+        shape = (frame.shape[0], frame.shape[1])
+        for box, masks in zip(boxes[:, 1:], masks):
+            if box[1] > confidence_threshold:
+                yield MaskBox(shape=shape, box=box, masks=masks).mask
+        return
 
     def __load_net(self: "MaskRCNN", m: int = 0) -> None:
         weights = os.path.join(WEIGHTS_DIR, WEIGHTS[m])

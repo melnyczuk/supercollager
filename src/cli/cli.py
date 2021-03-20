@@ -72,8 +72,23 @@ class CLI:
         self.logger.log(f"loaded {len(imgs)} images")
         self.logger.log("segmenting images:")
         segments = App.segment(imgs, **kwargs)
-        self.logger.log(f"found {len(segments)} segments in {len(imgs)} URIs")
         save.many(segments)
+
+    def video(
+        self: "CLI",
+        input: str,
+        fname: str = f"{datetime.now()}".replace(" ", "_"),
+        dir: str = f"{date.today()}",
+    ):
+        """
+        Produces an alpha matte for objects in video
+        """
+        save = Save(fname=fname, dir=dir)
+        video = Adapter.video(input)
+        fps = int(video.get(5))
+        shape = (int(video.get(3)), int(video.get(4)))
+        self.logger.log("segmenting video:")
+        save.video(App.video(video), fps, shape)
 
 
 if __name__ == "__main__":

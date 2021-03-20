@@ -1,5 +1,9 @@
 import os
-from typing import List, Union
+from typing import Iterable, Tuple, Union
+
+from cv2 import VideoWriter, VideoWriter_fourcc  # type:ignore
+from numpy import ndarray  # type:ignore
+from tqdm.std import tqdm  # type:ignore
 
 from src.app.image_type import ImageType
 from src.constants import VALID_EXTS
@@ -19,9 +23,29 @@ class Save:
         img.pil.save(f"{os.path.join(self.dir, name)}.{ext}")
         return
 
-    def many(self: "Save", images: List[ImageType]) -> None:
-        for index, img in enumerate(images):
+    def many(self: "Save", images: Iterable[ImageType]) -> None:
+        for index, img in tqdm(enumerate(images)):
             self.one(img, index=index)
+        return
+
+    def video(
+        self: "Save",
+        video: Iterable[ndarray],
+        fps: int,
+        shape: Tuple[int, int],
+    ) -> None:
+        fpath = f"{os.path.join(self.dir, Save.__remove_ext(self.fname))}.avi"
+        writer = VideoWriter(
+            fpath,
+            VideoWriter_fourcc("D", "I", "V", "X"),
+            fps,
+            shape,
+            isColor=False,
+        )
+        for frame in tqdm(video):
+            writer.write(frame)
+        writer.release()
+        return
 
     def __init__(self: "Save", fname=None, dir=None):
         if not fname:
