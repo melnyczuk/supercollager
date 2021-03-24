@@ -92,9 +92,5 @@ class CLI:
         video.close()
 
 
-
-
-
-
 if __name__ == "__main__":
     Fire(CLI())
