@@ -39,23 +39,18 @@ class MaskRCNN:
                 )
         return
 
-    def video(
-        self: "MaskRCNN", video: cv2.VideoCapture
-    ) -> Iterable[np.ndarray]:
-        empty = np.zeros((int(video.get(3)), int(video.get(4))), dtype=np.uint8)
-
-        while video.isOpened():
-            ret, frame = video.read()
-            if not ret:
-                break
-            try:
-                mask, *_ = self.__analyse(frame, 0.3)
-                yield mask.astype(np.uint8)
-            except:
-                yield empty
-
-        video.release()
-        return
+    def mask_frame(
+        self: "MaskRCNN",
+        frame: np.ndarray,
+        confidence_threshold: float = 0.0,
+    ) -> np.ndarray:
+        try:
+            masks = list(self.__analyse(frame, confidence_threshold))
+            if not len(masks):
+                raise ValueError()
+            return np.array(np.mean(np.array(masks), axis=0), dtype=np.uint8)
+        except Exception:
+            return np.zeros(frame.shape[:2], dtype=np.uint8)
 
     def __analyse(
         self: "MaskRCNN",

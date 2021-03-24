@@ -4,6 +4,7 @@ from test.utils import describe, it
 from unittest import TestCase
 
 import numpy as np
+from PIL import Image  # type: ignore
 from tqdm.std import tqdm  # type:ignore
 
 from src.adapter import Adapter
@@ -22,7 +23,7 @@ class End2EndTestCase(TestCase):
         @it
         def segments():
             pickle_path = os.path.abspath(f"{e2e_dir}/segment.pb")
-            output = list(tqdm(App.segment(image)))
+            output = [o.np for o in tqdm(list(App.segment(image)))]
 
             if show:
                 _show(output)
@@ -34,7 +35,8 @@ class End2EndTestCase(TestCase):
         @it
         def collages():
             pickle_path = os.path.abspath(f"{e2e_dir}/collage.pb")
-            output = list(tqdm([App.collage(image)]))
+            output = list(tqdm([App.collage(image).np]))
+
             if show:
                 _show(output)
             elif update:
@@ -45,7 +47,8 @@ class End2EndTestCase(TestCase):
         @it
         def segments_videos():
             pickle_path = os.path.abspath(f"{e2e_dir}/video.pb")
-            output = list(tqdm(App.video(video)))
+            clip = App.alpha_matte(video, keyframe_interval=2, gain=50)
+            output = np.array(list(clip.iter_frames()), dtype=np.uint8)
 
             if show:
                 _show(output)
@@ -57,7 +60,7 @@ class End2EndTestCase(TestCase):
 
 def _show(output):
     for out in output:
-        out.pil.show()
+        Image.fromarray(out).show()
     return
 
 
@@ -70,4 +73,4 @@ def _assert_test(output, path):
     with open(path, "rb") as fileObject:
         correct = pickle.load(fileObject)
         for i, out in enumerate(output):
-            np.testing.assert_array_equal(out.np, correct[i].np)
+            np.testing.assert_array_equal(out, correct[i])

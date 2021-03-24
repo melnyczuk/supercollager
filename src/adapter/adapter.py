@@ -2,7 +2,7 @@ import os
 from io import BytesIO
 from typing import Any, Iterable, List
 
-from cv2 import VideoCapture  # type: ignore
+from moviepy.video.io.VideoFileClip import VideoFileClip  # type: ignore
 from PIL import Image  # type: ignore
 
 from src.adapter.directory import DirectoryAdapter
@@ -21,8 +21,8 @@ class Adapter:
         ]
 
     @staticmethod
-    def video(input: str) -> VideoCapture:
-        return VideoCapture(input)
+    def video(input: str) -> VideoFileClip:
+        return VideoFileClip(input)
 
     @staticmethod
     def __match(
