@@ -2,11 +2,11 @@ import os
 from io import BytesIO
 from typing import Any, Iterable, List
 
+from moviepy.video.io.VideoFileClip import VideoFileClip  # type: ignore
 from PIL import Image  # type: ignore
 
 from src.adapter.directory import DirectoryAdapter
 from src.adapter.local_file import LocalFileAdapter
-
 from src.adapter.url import UrlAdapter
 from src.app.image_type import ImageType
 
@@ -19,6 +19,10 @@ class Adapter:
             for input in inputs
             for file in Adapter.__match(input)
         ]
+
+    @staticmethod
+    def video(input: str) -> VideoFileClip:
+        return VideoFileClip(input)
 
     @staticmethod
     def __match(

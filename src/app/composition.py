@@ -1,4 +1,4 @@
-from typing import List
+from typing import Iterable
 
 from PIL import Image  # type: ignore
 
@@ -8,7 +8,10 @@ from src.app.roi import ROI
 
 class Composition:
     @staticmethod
-    def layer_images(imgs: List[ImageType], background: int = 0) -> ImageType:
+    def layer_images(
+        imgs: Iterable[ImageType],
+        background: int = 0,
+    ) -> ImageType:
         edge = Composition.__get_longest_edge(imgs)
         canvas = Image.new("RGBA", (edge, edge), background)
         for img in imgs:
@@ -16,7 +19,7 @@ class Composition:
         return ROI.crop(ImageType(canvas.convert("RGB")))
 
     @staticmethod
-    def __get_longest_edge(imgs: List[ImageType]) -> int:
+    def __get_longest_edge(imgs: Iterable[ImageType]) -> int:
         return sorted(
             set(edge for img in imgs for edge in img.dimensions),
             reverse=True,

@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from fire import Fire  # type:ignore
+from fire import Fire  # type: ignore
 
 from src.adapter import Adapter
 from src.app import App
@@ -48,7 +48,7 @@ class CLI:
         self.logger.log(f"loaded {len(imgs)} images")
         self.logger.log("collaging images:")
         img = App.collage(imgs, **kwargs)
-        save.one(img)
+        save.jpg(img)
         self.logger.log(f"saved to {dir}/{fname}.jpg")
 
     def segment(
@@ -72,8 +72,24 @@ class CLI:
         self.logger.log(f"loaded {len(imgs)} images")
         self.logger.log("segmenting images:")
         segments = App.segment(imgs, **kwargs)
-        self.logger.log(f"found {len(segments)} segments in {len(imgs)} URIs")
-        save.many(segments)
+        for idx, img in enumerate(segments):
+            save.png(img, index=idx)
+
+    def alpha_matte(
+        self: "CLI",
+        input: str,
+        fname: str = f"{datetime.now()}".replace(" ", "_"),
+        dir: str = f"{date.today()}",
+        **kwargs,
+    ):
+        """
+        Produces an alpha matte for objects in video
+        """
+        save = Save(fname=fname, dir=dir)
+        video = Adapter.video(input)
+        self.logger.log("segmenting video:")
+        save.mp4(App.alpha_matte(video, **kwargs))
+        video.close()
 
 
 if __name__ == "__main__":

@@ -4,7 +4,6 @@ from typing import Tuple, Union
 import cv2  # type: ignore
 import numpy as np
 
-from src.app.image_type import ImageType
 from src.app.transform import Transform
 
 
@@ -26,17 +25,16 @@ class Masking:
     @staticmethod
     def to_rgba(mask: np.ndarray, color: Tuple[int, int, int]) -> np.ndarray:
         rgb = np.full((*mask.shape, 3), np.array(color))
-        return np.dstack((rgb, mask))  # type: ignore
+        return Masking.apply_mask(rgb, mask)
 
     @staticmethod
     def apply_mask(
-        img: ImageType,
+        img: np.ndarray,
         mask: np.ndarray,
         rotate: Union[float, bool] = False,
-    ) -> ImageType:
-        alpha = Transform.rotate(ImageType(mask), rotate)
-        rgba = np.dstack((img.np, alpha.np))  # type: ignore
-        return ImageType(rgba)
+    ) -> np.ndarray:
+        alpha = Transform.rotate(mask, rotate)
+        return np.dstack((img, alpha))  # type: ignore
 
     @staticmethod
     def upscale(mask: np.ndarray, size: Tuple[int, int]) -> np.ndarray:
