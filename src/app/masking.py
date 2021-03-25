@@ -25,7 +25,7 @@ class Masking:
     @staticmethod
     def to_rgba(mask: np.ndarray, color: Tuple[int, int, int]) -> np.ndarray:
         rgb = np.full((*mask.shape, 3), np.array(color))
-        return np.dstack((rgb, mask))  # type: ignore
+        return Masking.apply_mask(rgb, mask)
 
     @staticmethod
     def apply_mask(

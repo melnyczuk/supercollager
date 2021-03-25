@@ -15,5 +15,7 @@ class UrlAdapter:
         resp = requests.get(input)
         soup = BeautifulSoup(resp.text, "html.parser")
         tags = soup.find_all("img")
+        if not len(tags):
+            return [UrlAdapter.load(input)]
         imgs = (img.get("src", "") for img in tags)
         return [UrlAdapter.load(src) for src in imgs if src.startswith("http")]

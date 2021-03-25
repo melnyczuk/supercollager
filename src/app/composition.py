@@ -9,7 +9,8 @@ from src.app.roi import ROI
 class Composition:
     @staticmethod
     def layer_images(
-        imgs: Iterable[ImageType], background: int = 0
+        imgs: Iterable[ImageType],
+        background: int = 0,
     ) -> ImageType:
         edge = Composition.__get_longest_edge(imgs)
         canvas = Image.new("RGBA", (edge, edge), background)
