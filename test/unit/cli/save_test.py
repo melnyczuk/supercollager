@@ -25,22 +25,15 @@ class SaveTestCase(TestCase):
         @it
         def saves_an_image_of_ImageType():
             img = ImageType(np.ones((2, 2, 3)))
-            Save(fname="test", dir="./dir").one(img)
+            Save(fname="test", dir="./dir").jpg(img)
             mock_Image_save.assert_called()
             # call = mock_Image_save.call_args[0][0]
             # call.assert_called()
 
-        @each([("RGB", "jpg"), ("RGBA", "png")])
-        def calls_convert_with_the_correct_mode(vars):
-            (mode, ext) = vars
-            img = ImageType(Image.new(mode, (9, 9)))
-            Save(fname="test", dir="./dir").one(img)
-            mock_Image_save.assert_called_with(f"./dir/test.{ext}")
-
         @each(["test", "test.png", "test.jpeg", "test.tiff"])
         def saves_a_file_regardless_of_ext(fname):
             img = ImageType(np.ones((2, 2, 4)))
-            Save(fname=fname, dir="./dir").one(img)
+            Save(fname=fname, dir="./dir").png(img)
             mock_Image_save.assert_called_with("./dir/test.png")
 
         @each(
@@ -51,7 +44,7 @@ class SaveTestCase(TestCase):
         )
         def maybe_appends_index(params):
             index, outpath = params
-            Save(fname="fname", dir="./dir").one(
+            Save(fname="fname", dir="./dir").png(
                 ImageType(np.ones((2, 2, 4))),
                 index=index,
             )
@@ -62,5 +55,5 @@ class SaveTestCase(TestCase):
             with mock.patch("os.path.isdir", return_value=False):
                 with mock.patch("src.cli.save.os.mkdir") as mock_mkdir:
                     img = ImageType(np.ones((2, 2, 3)))
-                    Save(fname="fnmae", dir="./dir").one(img)
+                    Save(fname="fnmae", dir="./dir").jpg(img)
                     mock_mkdir.assert_called_with("./dir")

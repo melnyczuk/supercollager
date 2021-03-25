@@ -3,7 +3,6 @@ from unittest import TestCase, mock
 
 import numpy as np
 
-from src.app.image_type import ImageType
 from src.app.masking import Masking
 
 
@@ -137,9 +136,8 @@ class MaskingTestCase(TestCase):
                 ]
             )
 
-            img = ImageType(arr)
-            out = Masking.apply_mask(img, mask)
-            np.testing.assert_array_equal(expected, out.np)
+            out = Masking.apply_mask(arr, mask)
+            np.testing.assert_array_equal(expected, out)
 
         @it
         def applies_a_mask_with_rotating():
@@ -203,9 +201,8 @@ class MaskingTestCase(TestCase):
                 ]
             )
 
-            img = ImageType(arr)
-            out = Masking.apply_mask(img, mask, True)
-            np.testing.assert_array_equal(expected, out.np)
+            out = Masking.apply_mask(arr, mask, True)
+            np.testing.assert_array_equal(expected, out)
 
     @describe
     def test_upscale(self):

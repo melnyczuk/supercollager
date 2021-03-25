@@ -19,19 +19,22 @@ class App:
         rotate: Union[float, bool] = False,
     ) -> Iterable[ImageType]:
         segmentation = Segmentation()
-        return segmentation.mask_rcnn.images(imgs, rotate=rotate)
+        return [
+            segment
+            for img in imgs
+            for segment in segmentation.mask_rcnn.image(img.np, rotate=rotate)
+        ]
 
     @staticmethod
     def collage(
         imgs: List[ImageType],
         rotate: Union[float, bool] = False,
     ) -> ImageType:
-        segmentation = Segmentation()
-        imgs = list(segmentation.mask_rcnn.images(imgs, rotate=rotate))
+        segments = App.segment(imgs, rotate=rotate)
         bg = int(np.random.randint(5, 15))
-        comp = Composition.layer_images(imgs=imgs, background=bg)
-        post = PilPostProcess(comp.pil).contrast(1.2).color(1.2)
-        return ImageType(post.img)
+        comp = Composition.layer_images(imgs=segments, background=bg)
+        post = PilPostProcess(comp.pil).contrast(1.2).color(1.2).img
+        return ImageType(post)
 
     @staticmethod
     def alpha_matte(

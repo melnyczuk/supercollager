@@ -1,5 +1,5 @@
 import os
-from typing import Iterable, List, Union
+from typing import Iterable, Union
 
 import cv2  # type: ignore
 import numpy as np
@@ -27,17 +27,15 @@ class MaskRCNN:
         self.__load_net()
         # self.model = cv2.dnn_SegmentationModel(net)
 
-    def images(
+    def image(
         self: "MaskRCNN",
-        imgs: List[ImageType],
+        img: np.ndarray,
         rotate: Union[float, bool] = False,
     ) -> Iterable[ImageType]:
-        for img in imgs:
-            for mask in self.__analyse(img.np):
-                yield ROI.crop(
-                    Masking.apply_mask(img=img, mask=mask, rotate=rotate)
-                )
-        return
+        for mask in self.__analyse(img):
+            yield ROI.crop(
+                ImageType(Masking.apply_mask(img=img, mask=mask, rotate=rotate))
+            )
 
     def mask_frame(
         self: "MaskRCNN",
