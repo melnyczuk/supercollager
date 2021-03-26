@@ -1,23 +1,24 @@
 from typing import Optional
 
 import cv2  # type: ignore
+import numpy as np
+from PIL import Image  # type: ignore
 
-from src.app.image_type import ImageType
 from src.app.region import Region
 
 
 class ROI:
     @staticmethod
-    def crop(img: ImageType, threshold: int = None) -> ImageType:
+    def crop(img: np.ndarray, threshold: int = None) -> np.ndarray:
         if not (region := ROI.__get_roi(img, threshold)):
             return img
-        return ImageType(region.crop(img.np))
+        return region.crop(img)
 
     @staticmethod
-    def __get_roi(img: ImageType, threshold: int = None) -> Optional[Region]:
+    def __get_roi(img: np.ndarray, threshold: int = None) -> Optional[Region]:
         grey = ROI.__get_grey(img)
         thresh = threshold if threshold else ROI.__get_threshold(grey)
-        (_, bin) = cv2.threshold(grey.np, thresh, 255, cv2.THRESH_BINARY)
+        (_, bin) = cv2.threshold(grey, thresh, 255, cv2.THRESH_BINARY)
         (ctrs, _) = cv2.findContours(
             bin, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
         )
@@ -29,15 +30,16 @@ class ROI:
         return Region(left=left, right=left + w, top=top, bottom=top + h)
 
     @staticmethod
-    def __get_grey(img: ImageType) -> ImageType:
-        if img.channels == 4:
-            return ImageType(img.np[:, :, 3])
-        if img.channels == 3:
-            return ImageType(cv2.cvtColor(img.np, cv2.COLOR_RGB2GRAY))
+    def __get_grey(img: np.ndarray) -> np.ndarray:
+        if len(img.shape) == 3:
+            if img.shape[2] == 4:
+                return img[:, :, 3]
+            if img.shape[2] == 3:
+                return cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
         return img
 
     @staticmethod
-    def __get_threshold(img: ImageType) -> int:
-        histogram = img.pil.histogram()
+    def __get_threshold(img: np.ndarray) -> int:
+        histogram = Image.fromarray(img).histogram()
         mode = max(*histogram)
         return histogram.index(mode)

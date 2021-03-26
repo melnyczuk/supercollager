@@ -4,7 +4,6 @@ from typing import Iterable, Union
 import cv2  # type: ignore
 import numpy as np
 
-from src.app.image_type import ImageType
 from src.app.masking import Masking
 from src.app.roi import ROI
 
@@ -31,11 +30,10 @@ class MaskRCNN:
         self: "MaskRCNN",
         img: np.ndarray,
         rotate: Union[float, bool] = False,
-    ) -> Iterable[ImageType]:
+    ) -> Iterable[np.ndarray]:
         for mask in self.__analyse(img):
-            yield ROI.crop(
-                ImageType(Masking.apply_mask(img=img, mask=mask, rotate=rotate))
-            )
+            rgba = Masking.apply_mask(img=img, mask=mask, rotate=rotate)
+            yield ROI.crop(rgba)
 
     def mask_frame(
         self: "MaskRCNN",
@@ -63,7 +61,8 @@ class MaskRCNN:
         shape = (frame.shape[0], frame.shape[1])
         for box, masks in zip(boxes[:, 1:], masks):
             if box[1] > confidence_threshold:
-                yield MaskBox(shape=shape, box=box, masks=masks).mask
+                maskbox = MaskBox(shape=shape, box=box, masks=masks)
+                yield maskbox.mask.astype(np.uint8)
         return
 
     def __load_net(self: "MaskRCNN", m: int = 0) -> None:

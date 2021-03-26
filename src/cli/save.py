@@ -1,10 +1,10 @@
 import os
-from typing import Optional, Union
+from typing import Iterable, Optional, Union
 
+import numpy as np
 from moviepy.video.io.ImageSequenceClip import ImageSequenceClip  # type: ignore
-from moviepy.video.io.VideoFileClip import VideoFileClip  # type: ignore
+from PIL import Image  # type: ignore
 
-from src.app.image_type import ImageType
 from src.constants import VALID_EXTS
 
 
@@ -12,17 +12,17 @@ class Save:
     fname: str
     dir: str
 
-    def jpg(self: "Save", img: ImageType, index: Optional[int] = None) -> None:
+    def jpg(self: "Save", img: np.ndarray, index: Optional[int] = None) -> None:
         self.__image(img, ext="jpg", index=index)
         return
 
-    def png(self: "Save", img: ImageType, index: Optional[int] = None) -> None:
+    def png(self: "Save", img: np.ndarray, index: Optional[int] = None) -> None:
         self.__image(img, ext="png", index=index)
         return
 
     def mp4(
         self: "Save",
-        clip: Union[VideoFileClip, ImageSequenceClip],
+        clip: Iterable[np.ndarray],
         **kwargs,
     ) -> None:
         self.__video(clip, ext="mp4", **kwargs)
@@ -30,7 +30,7 @@ class Save:
 
     def avi(
         self: "Save",
-        clip: Union[VideoFileClip, ImageSequenceClip],
+        clip: Iterable[np.ndarray],
         **kwargs,
     ) -> None:
         self.__video(clip, ext="avi", **kwargs)
@@ -38,7 +38,7 @@ class Save:
 
     def webm(
         self: "Save",
-        clip: Union[VideoFileClip, ImageSequenceClip],
+        clip: Iterable[np.ndarray],
         **kwargs,
     ) -> None:
         self.__video(clip, ext="webm", **kwargs)
@@ -46,22 +46,25 @@ class Save:
 
     def __video(
         self: "Save",
-        clip: Union[VideoFileClip, ImageSequenceClip],
+        clip: Iterable[np.ndarray],
         ext: str,
+        fps: int,
         **kwargs,
     ):
         fpath = f"{os.path.join(self.dir, Save.__remove_ext(self.fname))}.{ext}"
-        clip.write_videofile(fpath, **kwargs)
+        ImageSequenceClip(
+            [np.dstack((m, m, m)) for m in clip], with_mask=False, fps=fps
+        ).write_videofile(fpath, **kwargs)
         return
 
     def __image(
         self: "Save",
-        img: ImageType,
+        img: np.ndarray,
         ext: str,
         index: Optional[int] = None,
     ):
         name = Save.__remove_ext(self.fname) + Save.__maybe_append(index)
-        img.pil.save(f"{os.path.join(self.dir, name)}.{ext}")
+        Image.fromarray(img).save(f"{os.path.join(self.dir, name)}.{ext}")
         return
 
     def __init__(self: "Save", fname=None, dir=None):

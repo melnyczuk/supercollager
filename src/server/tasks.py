@@ -13,7 +13,7 @@ class Tasks:
         uris = data["uris"]
         rotate = data.get("rotate", None)
         output = App.collage(uris, rotate=rotate)
-        return {"result": [output.np]}
+        return {"result": [output]}
 
     @celery.task
     @staticmethod
@@ -23,4 +23,4 @@ class Tasks:
         uris = data["uris"]
         rotate = data.get("rotate", None)
         output = App.segment(uris, rotate=rotate)
-        return {"result": output}
+        return {"result": list(output)}

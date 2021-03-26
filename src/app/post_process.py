@@ -1,40 +1,40 @@
 import cv2  # type: ignore
 import numpy as np
-from PIL import ImageEnhance, ImageOps  # type: ignore
-from PIL.Image import Image as PilImage  # type: ignore
+from PIL import Image, ImageEnhance, ImageOps  # type: ignore
 
 
-class PilPostProcess:
-    img: PilImage
+class PostProcess:
+    __img: np.ndarray
 
-    def __init__(self: "PilPostProcess", img: PilImage) -> None:
-        self.img = img
+    def __init__(self: "PostProcess", img: np.ndarray) -> None:
+        self.__img = img
 
-    def contrast(
-        self: "PilPostProcess", factor: float = 0.0
-    ) -> "PilPostProcess":
-        auto = ImageOps.autocontrast(self.img)
-        self.img = ImageEnhance.Contrast(auto).enhance(factor)
+    def done(self: "PostProcess") -> np.ndarray:
+        return self.__img
+
+    def contrast(self: "PostProcess", factor: float) -> "PostProcess":
+        img = Image.fromarray(self.__img)
+        auto = ImageOps.autocontrast(img)
+        enhanced = ImageEnhance.Contrast(auto).enhance(factor)
+        self.__img = np.array(enhanced, dtype=np.uint8)
         return self
 
-    def color(self: "PilPostProcess", factor: float = 0.0) -> "PilPostProcess":
-        self.img = ImageEnhance.Color(self.img).enhance(factor)
+    def color(self: "PostProcess", factor: float) -> "PostProcess":
+        img = Image.fromarray(self.__img)
+        enhanced = ImageEnhance.Color(img).enhance(factor)
+        self.__img = np.array(enhanced, dtype=np.uint8)
         return self
 
-
-class NpPostProcess:
-    img: np.ndarray
-
-    def __init__(self: "NpPostProcess", img: np.ndarray) -> None:
-        self.img = img
-
-    def gain(self: "NpPostProcess", gain: int) -> "NpPostProcess":
-        self.img = np.minimum(self.img.astype(np.float64) * gain, 254).astype(
-            np.uint8
-        )
+    def gain(self: "PostProcess", factor: float) -> "PostProcess":
+        img = self.__img.astype(np.float64) * factor
+        self.__img = np.minimum(img, 254).astype(np.uint8)
         return self
 
-    def blur(self: "NpPostProcess", size: int) -> "NpPostProcess":
-        ensure_odd = size * 2 + 1
-        self.img = cv2.GaussianBlur(self.img, (ensure_odd, ensure_odd), 0)
+    def blur(self: "PostProcess", factor: int) -> "PostProcess":
+        if factor == 0:
+            return self
+        ensure_odd = factor * 2 - 1
+        self.__img = cv2.GaussianBlur(
+            self.__img, (ensure_odd, ensure_odd), 0
+        ).astype(np.uint8)
         return self

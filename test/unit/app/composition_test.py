@@ -1,10 +1,10 @@
 from test.utils import describe, it
 from unittest import TestCase, mock
 
+import numpy as np
 from PIL import Image
 
 from src.app.composition import Composition
-from src.app.image_type import ImageType
 
 
 class CompositionTestCase(TestCase):
@@ -14,15 +14,15 @@ class CompositionTestCase(TestCase):
         @it
         def makes_a_canvas_image_with_the_largest_possible_dimensions():
             imgs = [
-                ImageType(Image.new("RGBA", (30, 40))),
-                ImageType(Image.new("RGBA", (20, 80))),
-                ImageType(Image.new("RGBA", (92, 34))),
-                ImageType(Image.new("RGBA", (16, 45))),
-                ImageType(Image.new("RGBA", (31, 90))),
+                np.zeros((30, 40, 4), dtype=np.uint8),
+                np.zeros((20, 80, 4), dtype=np.uint8),
+                np.zeros((92, 34, 4), dtype=np.uint8),
+                np.zeros((16, 45, 4), dtype=np.uint8),
+                np.zeros((31, 90, 4), dtype=np.uint8),
             ]
 
             output = Composition.layer_images(imgs)
 
             roi_crop.assert_called()
-            self.assertEqual(92, output.dimensions[0])
-            self.assertEqual(92, output.dimensions[1])
+            self.assertEqual(92, output.shape[1])
+            self.assertEqual(92, output.shape[0])

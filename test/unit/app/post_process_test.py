@@ -1,19 +1,20 @@
 from test.utils import describe, it
 from unittest import TestCase, mock
 
+import numpy as np
 from PIL import Image
 
-from src.app.post_process import PilPostProcess
+from src.app.post_process import PostProcess
 
 
-class PilPostProcessTestCase(TestCase):
+class PostProcessTestCase(TestCase):
     @describe
     def test_init(self):
         @it
-        def stores_the_pil_image_of_an_ImageType_as_img_attribute():
-            img = Image.new("RGB", (9, 9))
-            post = PilPostProcess(img)
-            self.assertEqual(img, post.img)
+        def returns_the_img_when_done():
+            img = np.random.rand(9, 9, 3).astype(np.uint8)
+            post = PostProcess(img).done()
+            np.testing.assert_array_equal(img, post)
 
     @mock.patch("src.app.post_process.ImageEnhance")
     @mock.patch("src.app.post_process.ImageOps")
@@ -27,27 +28,23 @@ class PilPostProcessTestCase(TestCase):
         mock_ImageEnhance.enhance.return_value = contrast_enhanced
 
         @it
-        def calls_ImageOps_autocontrast():
-            img = Image.new("RGB", (9, 9))
-            post = PilPostProcess(img)
-            post.contrast(4.2)
-            mock_ImageOps.autocontrast.assert_called_with(img)
-
-        @it
-        def applies_ImageOps_Contrast_enhance_to_img_attribute():
-            img = Image.new("RGB", (9, 9))
-            post = PilPostProcess(img)
-            post.contrast(4.2)
-            mock_ImageEnhance.Contrast.assert_called_with(autocontrasted)
+        def applies_autocontrast_and_contrast_enhance_to_img_attribute():
+            img = np.random.rand(9, 9, 3).astype(np.uint8)
+            post = PostProcess(img).contrast(4.2).done()
+            pil = Image.fromarray(img)
+            mock_ImageOps.autocontrast.assert_called_with(pil)
+            mock_ImageEnhance.Contrast.assert_called_with(pil)
             mock_ImageEnhance.enhance.assert_called_with(4.2)
-            self.assertEqual(contrast_enhanced, post.img)
+            np.testing.assert_array_equal(
+                np.array(contrast_enhanced, dtype=np.uint8), post
+            )
 
         @it
         def returns_itself():
-            img = Image.new("RGB", (9, 9))
-            post = PilPostProcess(img)
+            img = np.random.rand(9, 9, 3).astype(np.uint8)
+            post = PostProcess(img)
             out = post.contrast(4.2)
-            self.assertIsInstance(out, PilPostProcess)
+            self.assertIsInstance(out, PostProcess)
             self.assertEqual(out, post)
 
     @mock.patch("src.app.post_process.ImageEnhance")
@@ -59,17 +56,19 @@ class PilPostProcessTestCase(TestCase):
 
         @it
         def applies_ImageOps_Color_enhance_to_img_attribute():
-            img = Image.new("RGB", (9, 9))
-            post = PilPostProcess(img)
-            post.color(4.2)
-            mock_ImageEnhance.Color.assert_called_with(post.img)
+            img = np.random.rand(9, 9, 3).astype(np.uint8)
+            post = PostProcess(img).color(4.2).done()
+            pil = Image.fromarray(img)
+            mock_ImageEnhance.Color.assert_called_with(pil)
             mock_ImageEnhance.enhance.assert_called_with(4.2)
-            self.assertEqual(colour_enhanced, post.img)
+            np.testing.assert_array_equal(
+                np.array(colour_enhanced, dtype=np.uint8), post
+            )
 
         @it
         def returns_itself():
-            img = Image.new("RGB", (9, 9))
-            post = PilPostProcess(img)
+            img = np.random.rand(9, 9, 3).astype(np.uint8)
+            post = PostProcess(img)
             out = post.color(4.2)
-            self.assertIsInstance(out, PilPostProcess)
+            self.assertIsInstance(out, PostProcess)
             self.assertEqual(out, post)
