@@ -1,40 +1,39 @@
 from typing import Iterable, List, Union
 
 import numpy as np
-from moviepy.video.io.ImageSequenceClip import ImageSequenceClip  # type: ignore
 from moviepy.video.io.VideoFileClip import VideoFileClip  # type: ignore
 from tqdm.std import tqdm  # type:ignore
 
 from src.app.composition import Composition
-from src.app.image_type import ImageType
 from src.app.keyframing import Keyframing
-from src.app.post_process import NpPostProcess, PilPostProcess
+from src.app.post_process import PostProcess
 from src.app.segmentation import Segmentation
 
 
 class App:
     @staticmethod
     def segment(
-        imgs: List[ImageType],
+        imgs: List[np.ndarray],
         rotate: Union[float, bool] = False,
-    ) -> Iterable[ImageType]:
+    ) -> Iterable[np.ndarray]:
         segmentation = Segmentation()
-        return [
+        return (
             segment
             for img in imgs
-            for segment in segmentation.mask_rcnn.image(img.np, rotate=rotate)
-        ]
+            for segment in segmentation.mask_rcnn.image(img, rotate=rotate)
+        )
 
     @staticmethod
     def collage(
-        imgs: List[ImageType],
+        imgs: List[np.ndarray],
         rotate: Union[float, bool] = False,
-    ) -> ImageType:
+        contrast: float = 1.2,
+        color: float = 1.2,
+    ) -> np.ndarray:
         segments = App.segment(imgs, rotate=rotate)
         bg = int(np.random.randint(5, 15))
-        comp = Composition.layer_images(imgs=segments, background=bg)
-        post = PilPostProcess(comp.pil).contrast(1.2).color(1.2).img
-        return ImageType(post)
+        comp = Composition.layer_images(imgs=list(segments), background=bg)
+        return PostProcess(comp).contrast(contrast).color(color).done()
 
     @staticmethod
     def alpha_matte(
@@ -43,11 +42,11 @@ class App:
         gain: int = 1,
         blur: int = 0,
         confidence_threshold: float = 0.0,
-    ) -> Union[VideoFileClip, ImageSequenceClip]:
+    ) -> Iterable[np.ndarray]:
         segmentation = Segmentation()
 
         keyframes = tqdm(
-            NpPostProcess(
+            PostProcess(
                 segmentation.mask_rcnn.mask_frame(
                     frame,
                     confidence_threshold=confidence_threshold,
@@ -55,19 +54,13 @@ class App:
             )
             .gain(gain)
             .blur(blur)
-            .img
+            .done()
             for f, frame in enumerate(video.iter_frames())
             if f % keyframe_interval == 0
         )
 
-        mask = Keyframing.interpolate_frames(
+        return Keyframing.interpolate_frames(
             keyframes,
             duration=int(video.fps * video.duration),
             k_interval=keyframe_interval,
-        )
-
-        return ImageSequenceClip(
-            [np.dstack((m, m, m)) for m in mask],
-            with_mask=False,
-            fps=video.fps,
         )

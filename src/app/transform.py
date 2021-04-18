@@ -10,6 +10,7 @@ class Transform:
         img: np.ndarray,
         rotate: Union[float, bool] = False,
     ) -> np.ndarray:
+
         if not rotate:
             return img
 

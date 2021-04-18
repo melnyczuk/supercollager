@@ -2,20 +2,20 @@ import os
 from io import BytesIO
 from typing import Any, Iterable, List
 
+import numpy as np
 from moviepy.video.io.VideoFileClip import VideoFileClip  # type: ignore
 from PIL import Image  # type: ignore
 
 from src.adapter.directory import DirectoryAdapter
 from src.adapter.local_file import LocalFileAdapter
 from src.adapter.url import UrlAdapter
-from src.app.image_type import ImageType
 
 
 class Adapter:
     @staticmethod
-    def load(*inputs: str) -> List[ImageType]:
+    def load(*inputs: str) -> List[np.ndarray]:
         return [
-            ImageType(Image.open(file).convert("RGB"))
+            np.array(Image.open(file).convert("RGB"), dtype=np.uint8)
             for input in inputs
             for file in Adapter.__match(input)
         ]

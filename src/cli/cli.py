@@ -89,7 +89,7 @@ class CLI:
         save = Save(fname=fname, dir=dir)
         video = Adapter.video(input)
         self.logger.log("segmenting video:")
-        save.mp4(App.alpha_matte(video, **kwargs))
+        save.mp4(App.alpha_matte(video, **kwargs), fps=video.fps)
         video.close()
         return
 

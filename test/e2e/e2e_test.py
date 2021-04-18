@@ -23,7 +23,7 @@ class End2EndTestCase(TestCase):
         @it
         def segments():
             pickle_path = os.path.abspath(f"{e2e_dir}/segment.pb")
-            output = [o.np for o in tqdm(list(App.segment(image)))]
+            output = list(tqdm(App.segment(image)))
 
             if show:
                 _show(output)
@@ -35,7 +35,7 @@ class End2EndTestCase(TestCase):
         @it
         def collages():
             pickle_path = os.path.abspath(f"{e2e_dir}/collage.pb")
-            output = list(tqdm([App.collage(image).np]))
+            output = list(tqdm([App.collage(image)]))
 
             if show:
                 _show(output)
@@ -48,7 +48,7 @@ class End2EndTestCase(TestCase):
         def segments_videos():
             pickle_path = os.path.abspath(f"{e2e_dir}/video.pb")
             clip = App.alpha_matte(video, keyframe_interval=2, gain=50)
-            output = np.array(list(clip.iter_frames()), dtype=np.uint8)
+            output = np.array(list(clip), dtype=np.uint8)
 
             if show:
                 _show(output)

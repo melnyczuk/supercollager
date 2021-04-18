@@ -2,15 +2,13 @@ from test.utils import describe, each, it
 from unittest import TestCase, mock
 
 import numpy as np
-from PIL import Image
 
-from src.app.image_type import ImageType
 from src.cli.save import Save
 
 
 class SaveTestCase(TestCase):
     @mock.patch("os.path.isdir", return_value=True)
-    @mock.patch("src.app.image_type.Image.Image.save")
+    @mock.patch("src.cli.save.Image.Image.save")
     @describe
     def test_save_one(self, mock_Image_save, mock_isdir):
         @each(
@@ -23,8 +21,8 @@ class SaveTestCase(TestCase):
             self.assertRaises(ValueError, Save, *[], **kwargs)
 
         @it
-        def saves_an_image_of_ImageType():
-            img = ImageType(np.ones((2, 2, 3)))
+        def saves_an_image():
+            img = np.ones((2, 2, 3), dtype=np.uint8)
             Save(fname="test", dir="./dir").jpg(img)
             mock_Image_save.assert_called()
             # call = mock_Image_save.call_args[0][0]
@@ -32,7 +30,7 @@ class SaveTestCase(TestCase):
 
         @each(["test", "test.png", "test.jpeg", "test.tiff"])
         def saves_a_file_regardless_of_ext(fname):
-            img = ImageType(np.ones((2, 2, 4)))
+            img = np.ones((2, 2, 4), dtype=np.uint8)
             Save(fname=fname, dir="./dir").png(img)
             mock_Image_save.assert_called_with("./dir/test.png")
 
@@ -45,7 +43,7 @@ class SaveTestCase(TestCase):
         def maybe_appends_index(params):
             index, outpath = params
             Save(fname="fname", dir="./dir").png(
-                ImageType(np.ones((2, 2, 4))),
+                np.ones((2, 2, 4), dtype=np.uint8),
                 index=index,
             )
             mock_Image_save.assert_called_with(outpath)
@@ -54,6 +52,6 @@ class SaveTestCase(TestCase):
         def create_dir_if_dir_does_not_exist():
             with mock.patch("os.path.isdir", return_value=False):
                 with mock.patch("src.cli.save.os.mkdir") as mock_mkdir:
-                    img = ImageType(np.ones((2, 2, 3)))
+                    img = np.ones((2, 2, 3), dtype=np.uint8)
                     Save(fname="fnmae", dir="./dir").jpg(img)
                     mock_mkdir.assert_called_with("./dir")
