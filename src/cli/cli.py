@@ -1,7 +1,5 @@
 from datetime import date, datetime
 
-from fire import Fire  # type: ignore
-
 from src.adapter import Adapter
 from src.app import App
 from src.cli.save import Save
@@ -15,8 +13,9 @@ class CLI:
     """
     logger: Logger
 
-    def __init__(self: "CLI"):
-        print(
+    def __init__(self: "CLI") -> None:
+        self.logger = Logger()
+        self.logger.log(
             """
                ____                          ____                 
               / ____ _____ ___ ___________  / / ___ ____ ____ ____
@@ -25,7 +24,7 @@ class CLI:
                     /_/                            /___/          
             """  # noqa
         )
-        self.logger = Logger()
+        return
 
     def collage(
         self: "CLI",
@@ -50,6 +49,7 @@ class CLI:
         img = App.collage(imgs, **kwargs)
         save.jpg(img)
         self.logger.log(f"saved to {dir}/{fname}.jpg")
+        return
 
     def segment(
         self: "CLI",
@@ -74,6 +74,7 @@ class CLI:
         segments = App.segment(imgs, **kwargs)
         for idx, img in enumerate(segments):
             save.png(img, index=idx)
+        return
 
     def alpha_matte(
         self: "CLI",
@@ -90,7 +91,10 @@ class CLI:
         self.logger.log("segmenting video:")
         save.mp4(App.alpha_matte(video, **kwargs), fps=video.fps)
         video.close()
+        return
 
 
 if __name__ == "__main__":
+    from fire import Fire  # type: ignore
+
     Fire(CLI())

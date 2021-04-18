@@ -1,5 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+
 block_cipher = None
 
 
@@ -23,11 +24,15 @@ exe = EXE(pyz,
           a.zipfiles,
           a.datas,
           [],
-          name='cli',
+          name='supercollager',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
           upx=True,
           upx_exclude=[],
           runtime_tmpdir=None,
-          console=True )
+          console=False )
+app = BUNDLE(exe,
+             name='supercollager.app',
+             icon=None,
+             bundle_identifier=None)
