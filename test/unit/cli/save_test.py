@@ -8,7 +8,7 @@ from src.cli.save import Save
 
 class SaveTestCase(TestCase):
     @mock.patch("os.path.isdir", return_value=True)
-    @mock.patch("src.app.image_type.Image.Image.save")
+    @mock.patch("src.cli.save.Image.Image.save")
     @describe
     def test_save_one(self, mock_Image_save, mock_isdir):
         @each(
