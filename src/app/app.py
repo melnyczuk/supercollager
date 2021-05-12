@@ -56,28 +56,20 @@ class App:
     ) -> Iterable[np.ndarray]:
         segmentation = Segmentation()
 
-        def mask_frame(frame: np.ndarray) -> np.ndarray:
-            return (
-                np.array(np.mean(np.array(masks), axis=0), dtype=np.uint8)
-                if len(
-                    masks := list(
-                        segmentation.mask_rcnn.mask(
-                            frame,
-                            confidence_threshold=confidence_threshold,
-                        )
-                    )
+        masks = tqdm(
+            np.array(np.mean(np.array(masks), axis=0), dtype=np.uint8)
+            if len(
+                masks := list(
+                    segmentation.mask_rcnn.mask(frame, confidence_threshold)
                 )
-                else np.zeros(frame.shape[:2], dtype=np.uint8)
             )
-
-        keyframes = tqdm(
-            PostProcess(mask_frame(frame)).gain(gain).blur(blur).done()
+            else np.zeros(frame.shape[:2], dtype=np.uint8)
             for f, frame in enumerate(video.iter_frames())
             if f % keyframe_interval == 0
         )
 
         return Keyframing.interpolate_frames(
-            keyframes,
+            (PostProcess(mask).gain(gain).blur(blur).done() for mask in masks),
             duration=int(video.fps * video.duration),
             k_interval=keyframe_interval,
         )
