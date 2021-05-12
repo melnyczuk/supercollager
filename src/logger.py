@@ -1,4 +1,5 @@
 import logging
+import sys
 
 from flask import request
 
@@ -18,6 +19,10 @@ class Logger:
 
     def request(self: "Logger", status: int = 200) -> None:
         self.log(f"{request.path} {status}")
+
+    def error(self: "Logger", msg: str) -> None:
+        self.log(msg)
+        sys.exit()
 
     def log(self: "Logger", msg: str) -> None:
         self.logger.info(msg)

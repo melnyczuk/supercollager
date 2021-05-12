@@ -1,5 +1,7 @@
 from datetime import date, datetime
 
+from tqdm.std import tqdm  # type:ignore
+
 from src.adapter import Adapter
 from src.app import App
 from src.cli.save import Save
@@ -46,7 +48,7 @@ class CLI:
         imgs = Adapter.load(*inputs)
         self.logger.log(f"loaded {len(imgs)} images")
         self.logger.log("collaging images:")
-        img = App.collage(imgs, **kwargs)
+        (img,) = App.collage(tqdm(imgs), **kwargs)
         save.jpg(img)
         self.logger.log(f"saved to {dir}/{fname}.jpg")
         return
@@ -71,8 +73,32 @@ class CLI:
         imgs = Adapter.load(*inputs)
         self.logger.log(f"loaded {len(imgs)} images")
         self.logger.log("segmenting images:")
-        segments = App.segment(imgs, **kwargs)
+        segments = App.segment(tqdm(imgs), **kwargs)
         for idx, img in enumerate(segments):
+            save.png(img, index=idx)
+        return
+
+    def masks(
+        self: "CLI",
+        *inputs: str,
+        fname: str = f"{datetime.now()}".replace(" ", "_"),
+        dir: str = f"{date.today()}",
+    ):
+        """
+        Generates alpha masks of segments:
+        ---
+        Inputs:
+            an image or images via url(s), filepath(s) or directory(s)
+        Flags:
+            --dir: a directory to save to
+            --fname: a file name to save as
+        """
+        save = Save(fname=fname, dir=dir)
+        imgs = Adapter.load(*inputs)
+        self.logger.log(f"loaded {len(imgs)} images")
+        self.logger.log("segmenting images:")
+        masks = App.masks(tqdm(imgs))
+        for idx, img in enumerate(masks):
             save.png(img, index=idx)
         return
 
@@ -85,9 +111,18 @@ class CLI:
     ):
         """
         Produces an alpha matte for objects in video
+        ---
+        Inputs:
+            a video file
+        Flags:
+            --dir: a directory to save to
+            --fname: a file name to save as
         """
         save = Save(fname=fname, dir=dir)
-        video = Adapter.video(input)
+        try:
+            video = Adapter.video(input)
+        except OSError as e:
+            self.logger.error(str(e))
         self.logger.log("segmenting video:")
         save.mp4(App.alpha_matte(video, **kwargs), fps=video.fps)
         video.close()

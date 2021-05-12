@@ -16,46 +16,43 @@ class End2EndTestCase(TestCase):
     def test_e2e(self):
         show = int(os.getenv("SHOW", 0))
         update = int(os.getenv("UPDATE", 0))
+
         e2e_dir = os.path.abspath("test/e2e")
-        image = Adapter.load(f"{e2e_dir}/otter.jpeg")
-        video = Adapter.video(f"{e2e_dir}/otter.mp4")
+        pickle_dir = os.path.abspath(f"{e2e_dir}/pickles")
+        data_dir = os.path.abspath(f"{e2e_dir}/data")
+
+        image = Adapter.load(f"{data_dir}/otter.jpeg")
+        video = Adapter.video(f"{data_dir}/otter.mp4")
+
+        def _run(output, pickle_file):
+            pickle_path = os.path.abspath(f"{pickle_dir}/{pickle_file}")
+            if show:
+                _show(output)
+            elif update:
+                _update(output, pickle_path)
+            else:
+                _assert_test(output, pickle_path)
 
         @it
         def segments():
-            pickle_path = os.path.abspath(f"{e2e_dir}/segment.pb")
             output = list(tqdm(App.segment(image)))
-
-            if show:
-                _show(output)
-            elif update:
-                _update(output, pickle_path)
-            else:
-                _assert_test(output, pickle_path)
+            _run(output, "segment.pb")
 
         @it
         def collages():
-            pickle_path = os.path.abspath(f"{e2e_dir}/collage.pb")
-            output = list(tqdm([App.collage(image)]))
-
-            if show:
-                _show(output)
-            elif update:
-                _update(output, pickle_path)
-            else:
-                _assert_test(output, pickle_path)
+            output = list(tqdm(App.collage(image)))
+            _run(output, "collage.pb")
 
         @it
-        def segments_videos():
-            pickle_path = os.path.abspath(f"{e2e_dir}/video.pb")
+        def masks():
+            output = list(tqdm(App.masks(image)))
+            _run(output, "masks.pb")
+
+        @it
+        def alpha_mattes():
             clip = App.alpha_matte(video, keyframe_interval=2, gain=50)
             output = np.array(list(clip), dtype=np.uint8)
-
-            if show:
-                _show(output)
-            elif update:
-                _update(output, pickle_path)
-            else:
-                _assert_test(output, pickle_path)
+            _run(output, "alpha_matte.pb")
 
 
 def _show(output):

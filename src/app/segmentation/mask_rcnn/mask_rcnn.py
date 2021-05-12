@@ -1,11 +1,8 @@
 import os
-from typing import Iterable, Union
+from typing import Iterable
 
 import cv2  # type: ignore
 import numpy as np
-
-from src.app.masking import Masking
-from src.app.roi import ROI
 
 from .mask_box import MaskBox
 
@@ -26,29 +23,7 @@ class MaskRCNN:
         self.__load_net()
         # self.model = cv2.dnn_SegmentationModel(net)
 
-    def image(
-        self: "MaskRCNN",
-        img: np.ndarray,
-        rotate: Union[float, bool] = False,
-    ) -> Iterable[np.ndarray]:
-        for mask in self.__analyse(img):
-            rgba = Masking.apply_mask(img=img, mask=mask, rotate=rotate)
-            yield ROI.crop(rgba)
-
-    def mask_frame(
-        self: "MaskRCNN",
-        frame: np.ndarray,
-        confidence_threshold: float = 0.0,
-    ) -> np.ndarray:
-        try:
-            masks = list(self.__analyse(frame, confidence_threshold))
-            if not len(masks):
-                raise ValueError()
-            return np.array(np.mean(np.array(masks), axis=0), dtype=np.uint8)
-        except Exception:
-            return np.zeros(frame.shape[:2], dtype=np.uint8)
-
-    def __analyse(
+    def mask(
         self: "MaskRCNN",
         frame: np.ndarray,
         confidence_threshold: float = 0.0,
