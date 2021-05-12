@@ -119,7 +119,10 @@ class CLI:
             --fname: a file name to save as
         """
         save = Save(fname=fname, dir=dir)
-        video = Adapter.video(input)
+        try:
+            video = Adapter.video(input)
+        except OSError as e:
+            self.logger.error(str(e))
         self.logger.log("segmenting video:")
         save.mp4(App.alpha_matte(video, **kwargs), fps=video.fps)
         video.close()
