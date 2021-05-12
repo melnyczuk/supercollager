@@ -48,7 +48,7 @@ class CLI:
         imgs = Adapter.load(*inputs)
         self.logger.log(f"loaded {len(imgs)} images")
         self.logger.log("collaging images:")
-        img = App.collage(tqdm(imgs), **kwargs)
+        (img,) = App.collage(tqdm(imgs), **kwargs)
         save.jpg(img)
         self.logger.log(f"saved to {dir}/{fname}.jpg")
         return

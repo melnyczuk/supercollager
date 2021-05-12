@@ -40,7 +40,7 @@ class End2EndTestCase(TestCase):
 
         @it
         def collages():
-            output = list(tqdm([App.collage(image)]))
+            output = list(tqdm(App.collage(image)))
             _run(output, "collage.pb")
 
         @it

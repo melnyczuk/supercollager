@@ -40,11 +40,11 @@ class App:
         rotate: Union[float, bool] = False,
         contrast: float = 1.2,
         color: float = 1.2,
-    ) -> np.ndarray:
+    ) -> Iterable[np.ndarray]:
         segments = App.segment(imgs, rotate=rotate)
         bg = int(np.random.randint(5, 15))
         comp = Composition.layer_images(imgs=list(segments), background=bg)
-        return PostProcess(comp).contrast(contrast).color(color).done()
+        return (PostProcess(comp).contrast(contrast).color(color).done(),)
 
     @staticmethod
     def alpha_matte(
@@ -56,11 +56,14 @@ class App:
     ) -> Iterable[np.ndarray]:
         segmentation = Segmentation()
 
-        masks = tqdm(
+        keyframes = tqdm(
             np.array(np.mean(np.array(masks), axis=0), dtype=np.uint8)
             if len(
                 masks := list(
-                    segmentation.mask_rcnn.mask(frame, confidence_threshold)
+                    segmentation.mask_rcnn.mask(
+                        frame,
+                        confidence_threshold=confidence_threshold,
+                    )
                 )
             )
             else np.zeros(frame.shape[:2], dtype=np.uint8)
@@ -69,7 +72,7 @@ class App:
         )
 
         return Keyframing.interpolate_frames(
-            (PostProcess(mask).gain(gain).blur(blur).done() for mask in masks),
+            (PostProcess(kf).gain(gain).blur(blur).done() for kf in keyframes),
             duration=int(video.fps * video.duration),
             k_interval=keyframe_interval,
         )
