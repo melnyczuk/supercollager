@@ -13,16 +13,14 @@ from src.adapter.url import UrlAdapter
 
 class Adapter:
     @staticmethod
-    def load_one(input: str, img_mode: str = "RGB") -> np.ndarray:
-        file = Adapter.__match(input)
+    def load_one(inp: str, img_mode: str = "RGB") -> np.ndarray:
+        file = Adapter.__match(inp)
         img = Image.open(file).convert(img_mode)
         return np.array(img, dtype=np.uint8)
 
     @staticmethod
     def load(*inputs: str, img_mode: str = "RGB") -> Iterable[np.ndarray]:
-        files = (file for inp in inputs for file in Adapter.__match(inp))
-        imgs = (Image.open(file).convert(img_mode) for file in files)
-        return (np.array(img, dtype=np.uint8) for img in imgs)
+        return (Adapter.load_one(inp, img_mode=img_mode) for inp in inputs)
 
     @staticmethod
     def video(input: str) -> VideoFileClip:
