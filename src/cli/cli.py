@@ -128,7 +128,7 @@ class CLI:
         video.close()
         return
 
-    def test_esrgan(
+    def super_resolution(
         self: "CLI",
         *inputs: str,
         fname: str = f"{datetime.now()}".replace(" ", "_"),

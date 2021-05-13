@@ -1,3 +1,9 @@
+"""
+    Enhanced SRGAN. Champion PIRM Challenge on Perceptual Super-Resolution
+    https://github.com/xinntao/ESRGAN
+"""
+__author__ = "Xintao Wang"
+
 import numpy as np
 import torch
 
