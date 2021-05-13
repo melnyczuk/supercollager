@@ -1,6 +1,6 @@
 import os
 from io import BytesIO
-from typing import Any, Iterable, List
+from typing import Any, Iterable
 
 import numpy as np
 from moviepy.video.io.VideoFileClip import VideoFileClip  # type: ignore
@@ -13,12 +13,14 @@ from src.adapter.url import UrlAdapter
 
 class Adapter:
     @staticmethod
-    def load(*inputs: str) -> List[np.ndarray]:
-        return [
-            np.array(Image.open(file).convert("RGB"), dtype=np.uint8)
-            for input in inputs
-            for file in Adapter.__match(input)
-        ]
+    def load_one(inp: str, img_mode: str = "RGB") -> np.ndarray:
+        file = Adapter.__match(inp)
+        img = Image.open(file).convert(img_mode)
+        return np.array(img, dtype=np.uint8)
+
+    @staticmethod
+    def load(*inputs: str, img_mode: str = "RGB") -> Iterable[np.ndarray]:
+        return (Adapter.load_one(inp, img_mode=img_mode) for inp in inputs)
 
     @staticmethod
     def video(input: str) -> VideoFileClip:

@@ -45,7 +45,7 @@ class CLI:
             --fname: a file name to save as
         """
         save = Save(fname=fname, dir=dir)
-        imgs = Adapter.load(*inputs)
+        imgs = list(Adapter.load(*inputs))
         self.logger.log(f"loaded {len(imgs)} images")
         self.logger.log("collaging images:")
         (img,) = App.collage(tqdm(imgs), **kwargs)
@@ -70,7 +70,7 @@ class CLI:
             --fname: a file name to save as
         """
         save = Save(fname=fname, dir=dir)
-        imgs = Adapter.load(*inputs)
+        imgs = list(Adapter.load(*inputs))
         self.logger.log(f"loaded {len(imgs)} images")
         self.logger.log("segmenting images:")
         segments = App.segment(tqdm(imgs), **kwargs)
@@ -94,7 +94,7 @@ class CLI:
             --fname: a file name to save as
         """
         save = Save(fname=fname, dir=dir)
-        imgs = Adapter.load(*inputs)
+        imgs = list(Adapter.load(*inputs))
         self.logger.log(f"loaded {len(imgs)} images")
         self.logger.log("segmenting images:")
         masks = App.masks(tqdm(imgs))

@@ -27,7 +27,8 @@ class PostProcess:
 
     def gain(self: "PostProcess", factor: float) -> "PostProcess":
         img = self.__img.astype(np.float64) * factor
-        self.__img = np.minimum(img, 254).astype(np.uint8)
+        max = np.full((img.shape), 254, np.uint8)
+        self.__img = np.minimum(img, max).astype(np.uint8)
         return self
 
     def blur(self: "PostProcess", factor: int) -> "PostProcess":

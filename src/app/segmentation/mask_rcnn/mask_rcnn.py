@@ -6,7 +6,7 @@ import numpy as np
 
 from .mask_box import MaskBox
 
-WEIGHTS_DIR = os.path.abspath("weights")
+WEIGHTS_DIR = os.path.abspath("weights/mask_rcnn")
 CONFIG = "conf.pbtxt"
 WEIGHTS = [
     "mask_rcnn_inception_v2_coco_2018_01_28.pb",

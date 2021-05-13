@@ -203,34 +203,3 @@ class MaskingTestCase(TestCase):
 
             out = Masking.apply_mask(arr, mask, True)
             np.testing.assert_array_equal(expected, out)
-
-    @describe
-    def test_upscale(self):
-        @it
-        def produces_an_upscaled_mask():
-            input = np.array(
-                [
-                    [0, 0, 1, 0, 0],
-                    [0, 1, 1, 1, 0],
-                    [1, 1, 1, 1, 1],
-                    [0, 1, 1, 1, 0],
-                    [0, 0, 1, 0, 0],
-                ],
-                dtype=np.uint8,
-            )
-            expected = np.array(
-                [
-                    [0, 0, 0, 0, 1, 0, 0, 0, 0],
-                    [0, 0, 0, 1, 1, 1, 0, 0, 0],
-                    [0, 0, 1, 1, 1, 1, 1, 0, 0],
-                    [0, 0, 1, 1, 1, 1, 1, 0, 0],
-                    [1, 1, 1, 1, 1, 1, 1, 1, 1],
-                    [0, 0, 1, 1, 1, 1, 1, 0, 0],
-                    [0, 0, 1, 1, 1, 1, 1, 0, 0],
-                    [0, 0, 0, 1, 1, 1, 0, 0, 0],
-                    [0, 0, 0, 0, 1, 0, 0, 0, 0],
-                ],
-                dtype=np.uint8,
-            )
-            output = Masking.upscale(input, (9, 9))
-            np.testing.assert_array_equal(expected, output)

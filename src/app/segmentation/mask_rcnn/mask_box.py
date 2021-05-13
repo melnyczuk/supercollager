@@ -2,8 +2,8 @@ from typing import List, Tuple
 
 import numpy as np
 
-from src.app.masking import Masking
 from src.app.region import Region
+from src.app.transform import Transform
 
 
 class MaskBox:
@@ -27,14 +27,9 @@ class MaskBox:
         detection_mask: np.ndarray,
         bounds: Region,
     ) -> np.ndarray:
-        target_size = (
-            bounds.right - bounds.left,
-            bounds.bottom - bounds.top,
-        )
-        return Masking.upscale(
-            (detection_mask * 255).astype(np.uint8),
-            target_size,
-        )
+        dsize = (bounds.right - bounds.left, bounds.bottom - bounds.top)
+        mask = (detection_mask * 255).astype(np.uint8)
+        return Transform.resize(mask, dsize=dsize)
 
     def __calc_bounds(
         self: "MaskBox",

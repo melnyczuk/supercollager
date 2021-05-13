@@ -53,7 +53,9 @@ class Save:
     ):
         fpath = f"{os.path.join(self.dir, Save.__remove_ext(self.fname))}.{ext}"
         ImageSequenceClip(
-            [np.dstack((m, m, m)) for m in clip], with_mask=False, fps=fps
+            [np.dstack((m, m, m)) for m in clip],  # type: ignore
+            with_mask=False,
+            fps=fps,
         ).write_videofile(fpath, **kwargs)
         return
 
@@ -64,7 +66,9 @@ class Save:
         index: Optional[int] = None,
     ):
         name = Save.__remove_ext(self.fname) + Save.__maybe_append(index)
-        Image.fromarray(img).save(f"{os.path.join(self.dir, name)}.{ext}")
+        Image.fromarray(img.astype(np.uint8)).save(
+            f"{os.path.join(self.dir, name)}.{ext}"
+        )
         return
 
     def __init__(self: "Save", fname=None, dir=None):

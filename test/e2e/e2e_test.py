@@ -21,9 +21,6 @@ class End2EndTestCase(TestCase):
         pickle_dir = os.path.abspath(f"{e2e_dir}/pickles")
         data_dir = os.path.abspath(f"{e2e_dir}/data")
 
-        image = Adapter.load(f"{data_dir}/otter.jpeg")
-        video = Adapter.video(f"{data_dir}/otter.mp4")
-
         def _run(output, pickle_file):
             pickle_path = os.path.abspath(f"{pickle_dir}/{pickle_file}")
             if show:
@@ -35,21 +32,25 @@ class End2EndTestCase(TestCase):
 
         @it
         def segments():
+            image = Adapter.load(f"{data_dir}/otter.jpeg")
             output = list(tqdm(App.segment(image)))
             _run(output, "segment.pb")
 
         @it
         def collages():
+            image = Adapter.load(f"{data_dir}/otter.jpeg")
             output = list(tqdm(App.collage(image)))
             _run(output, "collage.pb")
 
         @it
         def masks():
+            image = Adapter.load(f"{data_dir}/otter.jpeg")
             output = list(tqdm(App.masks(image)))
             _run(output, "masks.pb")
 
         @it
         def alpha_mattes():
+            video = Adapter.video(f"{data_dir}/otter.mp4")
             clip = App.alpha_matte(video, keyframe_interval=2, gain=50)
             output = np.array(list(clip), dtype=np.uint8)
             _run(output, "alpha_matte.pb")
