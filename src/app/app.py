@@ -10,6 +10,7 @@ from src.app.masking import Masking
 from src.app.post_process import PostProcess
 from src.app.roi import ROI
 from src.app.segmentation import Segmentation
+from src.app.super_resolution import ESRGAN
 
 
 class App:
@@ -45,6 +46,14 @@ class App:
         bg = int(np.random.randint(5, 15))
         comp = Composition.layer_images(imgs=list(segments), background=bg)
         return (PostProcess(comp).contrast(contrast).color(color).done(),)
+
+    @staticmethod
+    def super_resolution(
+        imgs: Iterable[np.ndarray],
+        device: str = "cuda",
+    ) -> Iterable[np.ndarray]:
+        esrgan = ESRGAN(device=device)
+        return (esrgan.run(img) for img in imgs)
 
     @staticmethod
     def alpha_matte(

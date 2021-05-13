@@ -26,6 +26,7 @@ pypng = "*"
 python-dotenv = "*"
 redis = "*"
 requests = "*"
+torch = "*"
 tqdm = "*"
 waitress = "*"
 
