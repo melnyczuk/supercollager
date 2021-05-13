@@ -128,6 +128,20 @@ class CLI:
         video.close()
         return
 
+    def test_esrgan(
+        self: "CLI",
+        *inputs: str,
+        fname: str = f"{datetime.now()}".replace(" ", "_"),
+        dir: str = f"{date.today()}",
+        **kwargs,
+    ):
+        save = Save(fname=fname, dir=dir)
+        imgs = list(Adapter.load(*inputs))
+        sr = App.super_resolution(imgs, **kwargs)
+        for i, img in enumerate(sr):
+            save.jpg(img, i)
+        return
+
 
 if __name__ == "__main__":
     from fire import Fire  # type: ignore

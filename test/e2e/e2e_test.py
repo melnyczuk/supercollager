@@ -9,6 +9,7 @@ from tqdm.std import tqdm  # type:ignore
 
 from src.adapter import Adapter
 from src.app import App
+from src.app.transform import Transform
 
 
 class End2EndTestCase(TestCase):
@@ -47,6 +48,15 @@ class End2EndTestCase(TestCase):
             image = Adapter.load(f"{data_dir}/otter.jpeg")
             output = list(tqdm(App.masks(image)))
             _run(output, "masks.pb")
+
+        @it
+        def super_resolutes():
+            image = (
+                Transform.resize(img, (32, 32))
+                for img in Adapter.load(f"{data_dir}/otter.jpeg")
+            )
+            output = list(tqdm(App.super_resolution(image, device="cpu")))
+            _run(output, "super_resolution.pb")
 
         @it
         def alpha_mattes():
