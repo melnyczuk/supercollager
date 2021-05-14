@@ -12,6 +12,7 @@ from src.app.post_process import PostProcess
 from src.app.roi import ROI
 from src.app.segmentation import Segmentation
 from src.app.super_resolution import SuperResolution
+from src.app.transform import Transform
 
 
 def shuffl(arr: Iterable[Any]) -> List[Any]:
@@ -61,6 +62,29 @@ class App:
     ) -> Iterable[np.ndarray]:
         esrgan = SuperResolution.esrgan(device=device)
         return (esrgan.run(img) for img in imgs)
+
+    @staticmethod
+    def abstracts(
+        imgs: Iterable[np.ndarray],
+        color: float = 1.2,
+        contrast: float = 1.2,
+        device: str = "cuda",
+        dsize: Tuple[int, int] = (80, 64),
+        limit: int = 100,
+        n_segments: int = 10,
+        rotate: Union[float, bool] = False,
+        shuffle: bool = True,
+        sr_cycles: int = 0,
+    ) -> Iterable[np.ndarray]:
+        rng = np.random.default_rng()
+        segments = App.segment(imgs, rotate=rotate, shuffle=shuffle)
+        limited = [x for _, x in zip(range(limit), segments)]
+        chosen = rng.choice(np.array(limited, dtype=object), n_segments)
+        resized = [Transform.resize(seg, dsize=dsize) for seg in chosen]
+        comp = Composition.layer_images(shuffl(resized))
+        for _ in range(sr_cycles):
+            (comp,) = App.super_resolution((comp,), device=device)
+        return (PostProcess(comp).contrast(contrast).color(color).done(),)
 
     @staticmethod
     def alpha_matte(

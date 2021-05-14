@@ -169,6 +169,37 @@ class CLI:
         self.logger.log(f"saved to {dir}")
         return
 
+    def abstract(
+        self: "CLI",
+        *inputs: str,
+        fname: str = DEFAULT_FNAME,
+        dir: str = DEFAULT_DIR,
+        **kwargs,
+    ) -> None:
+        """
+        Produces an abstract composition
+        ---
+        Inputs:
+            an image or images via url(s), filepath(s) or directory(s)
+        Flags:
+            -color: float, post-process colour amount
+            -contrast: float, post-process contrast amount
+            -device: str, torch device for GPU ("cuda") or CPU ("cpu")
+            -dir: str, directory to save to
+            -dsize: tuple[int, int], target size of output image
+            -fname: str, file name to save as
+            -limit: int, how many segments to cut from input images
+            -n_segments: int, how many segments to use in composition
+            -rotate: bool|float, either True (90°) or angle in deg
+            -shuffe: bool, whether to shuffle input images (default True)
+            -sr_cycles: int, how many times to upscale using ESRGAN
+        """
+        save = Save(fname=fname, dir=dir)
+        imgs = Adapter.load(inputs)
+        self.logger.log("making abstract composition")
+        (abst,) = App.abstracts(imgs, **kwargs)
+        save.jpg(abst)
+        self.logger.log(f"saved to {dir}/{fname}.jpg")
         return
 
 
