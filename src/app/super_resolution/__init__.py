@@ -1,1 +1,1 @@
-from .esrgan import ESRGAN  # noqa: F401
+from .super_resolution import SuperResolution  # noqa: F401

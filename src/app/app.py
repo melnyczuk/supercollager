@@ -1,4 +1,5 @@
-from typing import Iterable, Union
+from random import random
+from typing import Any, Iterable, List, Tuple, Union
 
 import numpy as np
 from moviepy.video.io.VideoFileClip import VideoFileClip  # type:ignore
@@ -10,7 +11,11 @@ from src.app.masking import Masking
 from src.app.post_process import PostProcess
 from src.app.roi import ROI
 from src.app.segmentation import Segmentation
-from src.app.super_resolution import ESRGAN
+from src.app.super_resolution import SuperResolution
+
+
+def shuffl(arr: Iterable[Any]) -> List[Any]:
+    return sorted(arr, key=lambda _: random())
 
 
 class App:
@@ -27,24 +32,26 @@ class App:
     def segment(
         imgs: Iterable[np.ndarray],
         rotate: Union[float, bool] = False,
+        shuffle: bool = False,
     ) -> Iterable[np.ndarray]:
         segmentation = Segmentation()
-        return (
+        return tqdm(
             ROI.crop(Masking.apply_mask(img=img, mask=mask, rotate=rotate))
-            for img in imgs
+            for img in (shuffl(imgs) if shuffle else imgs)
             for mask in segmentation.mask_rcnn.mask(img)
         )
 
     @staticmethod
     def collage(
         imgs: Iterable[np.ndarray],
-        rotate: Union[float, bool] = False,
-        contrast: float = 1.2,
+        background: Union[None, int, Tuple[int, int, int]] = None,
         color: float = 1.2,
+        contrast: float = 1.2,
+        rotate: Union[float, bool] = False,
+        shuffle: bool = False,
     ) -> Iterable[np.ndarray]:
-        segments = App.segment(imgs, rotate=rotate)
-        bg = int(np.random.randint(5, 15))
-        comp = Composition.layer_images(imgs=list(segments), background=bg)
+        segments = App.segment(imgs, rotate=rotate, shuffle=shuffle)
+        comp = Composition.layer_images(segments, background=background)
         return (PostProcess(comp).contrast(contrast).color(color).done(),)
 
     @staticmethod
@@ -52,16 +59,16 @@ class App:
         imgs: Iterable[np.ndarray],
         device: str = "cuda",
     ) -> Iterable[np.ndarray]:
-        esrgan = ESRGAN(device=device)
+        esrgan = SuperResolution.esrgan(device=device)
         return (esrgan.run(img) for img in imgs)
 
     @staticmethod
     def alpha_matte(
         video: VideoFileClip,
-        keyframe_interval: int = 1,
-        gain: int = 1,
         blur: int = 0,
         confidence_threshold: float = 0.0,
+        gain: int = 1,
+        keyframe_interval: int = 1,
     ) -> Iterable[np.ndarray]:
         segmentation = Segmentation()
 
