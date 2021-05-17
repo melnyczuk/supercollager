@@ -1,11 +1,11 @@
 import os
 import pickle
 from test.utils import describe, it
+from typing import Iterable
 from unittest import TestCase
 
 import numpy as np
 from PIL import Image  # type: ignore
-from tqdm.std import tqdm  # type:ignore
 
 from src.adapter import Adapter
 from src.app import App
@@ -22,7 +22,7 @@ class End2EndTestCase(TestCase):
         pickle_dir = os.path.abspath(f"{e2e_dir}/pickles")
         data_dir = os.path.abspath(f"{e2e_dir}/data")
 
-        def _run(output, pickle_file):
+        def _run(output: Iterable[np.ndarray], pickle_file: str) -> None:
             pickle_path = os.path.abspath(f"{pickle_dir}/{pickle_file}")
             if show:
                 _show(output)
@@ -34,19 +34,19 @@ class End2EndTestCase(TestCase):
         @it
         def segments():
             image = Adapter.load(f"{data_dir}/otter.jpeg")
-            output = list(tqdm(App.segment(image)))
+            output = App.segment(image)
             _run(output, "segment.pb")
 
         @it
         def collages():
-            image = list(Adapter.load(f"{data_dir}/otter.jpeg"))
-            output = list(tqdm(App.collage(image, background=10)))
+            image = Adapter.load(f"{data_dir}/otter.jpeg")
+            output = App.collage(image, background=10)
             _run(output, "collage.pb")
 
         @it
         def masks():
             image = Adapter.load(f"{data_dir}/otter.jpeg")
-            output = list(tqdm(App.masks(image)))
+            output = App.masks(image)
             _run(output, "masks.pb")
 
         @it
@@ -55,21 +55,21 @@ class End2EndTestCase(TestCase):
                 Transform.resize(img, (32, 32))
                 for img in Adapter.load(f"{data_dir}/otter.jpeg")
             )
-            output = list(tqdm(App.super_resolution(image, device="cpu")))
+            output = App.super_resolution(
+                image,
+                device="cpu",
+                dsize=(128, 128),
+            )
             _run(output, "super_resolution.pb")
 
         @it
         def abstracts():
-            image = list(Adapter.load(f"{data_dir}/otter.jpeg"))
-            output = list(
-                tqdm(
-                    App.abstracts(
-                        image,
-                        device="cpu",
-                        limit=1,
-                        n_segments=1,
-                    )
-                )
+            image = Adapter.load(f"{data_dir}/otter.jpeg")
+            output = App.abstracts(
+                image,
+                limit=1,
+                n_segments=1,
+                dsize=(64, 80),
             )
             _run(output, "abstracts.pb")
 
@@ -81,19 +81,21 @@ class End2EndTestCase(TestCase):
             _run(output, "alpha_matte.pb")
 
 
-def _show(output):
+def _show(output: Iterable[np.ndarray]) -> None:
     for out in output:
         Image.fromarray(out).show()
     return
 
 
-def _update(output, path):
+def _update(output: Iterable[np.ndarray], path: str) -> None:
     with open(path, "wb") as fileObject:
         pickle.dump(output, fileObject)
+    return
 
 
-def _assert_test(output, path):
+def _assert_test(output: Iterable[np.ndarray], path: str) -> None:
     with open(path, "rb") as fileObject:
         correct = pickle.load(fileObject)
         for i, out in enumerate(output):
             np.testing.assert_array_equal(out, correct[i])
+    return

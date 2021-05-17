@@ -44,7 +44,7 @@ class TransformTest(TestCase):
             np.testing.assert_almost_equal(expected, output)
 
         @it
-        def rotates_90_deg_if_rotate_is_True():
+        def rotates_provided_deg_if_rotate_is_float():
             input = np.array(
                 [
                     [0, 1, 0],
