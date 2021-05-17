@@ -76,7 +76,7 @@ class End2EndTestCase(TestCase):
         @it
         def alpha_mattes():
             video = Adapter.video(f"{data_dir}/otter.mp4")
-            clip = App.alpha_matte(video, keyframe_interval=2, gain=50)
+            clip = App.alpha_matte(*video, keyframe_interval=2, gain=50)
             output = np.array(list(clip), dtype=np.uint8)
             _run(output, "alpha_matte.pb")
 

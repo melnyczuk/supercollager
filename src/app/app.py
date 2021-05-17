@@ -1,5 +1,5 @@
 from random import random
-from typing import Iterable, List, Tuple, Union
+from typing import Iterable, Tuple, Union
 
 import numpy as np
 from moviepy.video.io.VideoFileClip import VideoFileClip  # type:ignore
@@ -15,17 +15,25 @@ from src.app.super_resolution import SuperResolution
 from src.app.transform import Transform
 
 
-def shfl(arr: Iterable[np.ndarray]) -> List[np.ndarray]:
-    return sorted(arr, key=lambda _: random())
+def _shuffle(arr: Iterable[np.ndarray]) -> Iterable[np.ndarray]:
+    return (a for a in sorted(arr, key=lambda _: random()))
+
+
+def _limit(arr: Iterable[np.ndarray], limit: int = -1) -> Iterable[np.ndarray]:
+    return arr if limit < 0 else (x for _, x in zip(range(limit), arr))
 
 
 class App:
     @staticmethod
-    def masks(imgs: Iterable[np.ndarray]) -> Iterable[np.ndarray]:
+    def masks(
+        imgs: Iterable[np.ndarray],
+        limit: int = -1,
+        **kwargs,
+    ) -> Iterable[np.ndarray]:
         segmentation = Segmentation()
-        return (
+        return tqdm(
             ROI.crop(mask)
-            for img in imgs
+            for img in _limit(imgs, limit=limit)
             for mask in segmentation.mask_rcnn.mask(img)
         )
 
@@ -33,12 +41,16 @@ class App:
     def segment(
         imgs: Iterable[np.ndarray],
         rotate: Union[float, bool] = False,
+        limit: int = -1,
         shuffle: bool = False,
+        **kwargs,
     ) -> Iterable[np.ndarray]:
         segmentation = Segmentation()
+        limited = _limit(imgs, limit=limit)
+        shuffled = _shuffle(limited) if shuffle else limited
         return tqdm(
             ROI.crop(Masking.apply_mask(img=img, mask=mask, rotate=rotate))
-            for img in (shfl(imgs) if shuffle else imgs)
+            for img in shuffled
             for mask in segmentation.mask_rcnn.mask(img)
         )
 
@@ -50,6 +62,7 @@ class App:
         contrast: float = 1.2,
         rotate: Union[float, bool] = False,
         shuffle: bool = False,
+        **kwargs,
     ) -> Iterable[np.ndarray]:
         segments = App.segment(imgs, rotate=rotate, shuffle=shuffle)
         comp = Composition.layer_images(segments, background=background)
@@ -60,11 +73,12 @@ class App:
         imgs: Iterable[np.ndarray],
         device: str = "cuda",
         dsize: Tuple[int, int] = (1024, 1280),
+        **kwargs,
     ) -> Iterable[np.ndarray]:
         esrgan = SuperResolution.esrgan(device=device)
         target_size = (int(dsize[1] * 0.25), int(dsize[0] * 0.25))
         resized = (Transform.resize(img, dsize=target_size) for img in imgs)
-        return (esrgan.run(img) for img in resized)
+        return tqdm(esrgan.run(img) for img in resized)
 
     @staticmethod
     def abstracts(
@@ -75,12 +89,12 @@ class App:
         limit: int = 100,
         n_segments: int = 10,
         rotate: bool = False,
+        **kwargs,
     ) -> Iterable[np.ndarray]:
         segments = App.segment(imgs, rotate=rotate, shuffle=True)
-        limited = (x for _, x in zip(range(limit), segments))
-        shuffled = (seg for seg in shfl(limited))
-        resized = (Transform.resize(seg, dsize=dsize[::-1]) for seg in shuffled)
-        comp = Composition.layer_images(shfl(resized)[:n_segments])
+        limited = _limit(segments, limit=limit)
+        resized = (Transform.resize(seg, dsize=dsize[::-1]) for seg in limited)
+        comp = Composition.layer_images(list(_shuffle(resized))[:n_segments])
         return (PostProcess(comp).contrast(contrast).color(color).done(),)
 
     @staticmethod
@@ -90,6 +104,7 @@ class App:
         confidence_threshold: float = 0.0,
         gain: int = 1,
         keyframe_interval: int = 1,
+        **kwargs,
     ) -> Iterable[np.ndarray]:
         segmentation = Segmentation()
 

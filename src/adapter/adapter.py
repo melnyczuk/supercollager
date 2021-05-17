@@ -14,16 +14,16 @@ from src.logger import logger
 
 class Adapter:
     @staticmethod
-    def load(*inp: str, img_mode: str = "RGB") -> Iterable[np.ndarray]:
-        files = (file for i in inp for file in Adapter.__match(i))
+    def load(*inputs: str, img_mode: str = "RGB") -> Iterable[np.ndarray]:
+        files = (file for inp in inputs for file in Adapter.__match(inp))
         imgs = (Image.open(file).convert(img_mode) for file in files)
         return (np.array(img, dtype=np.uint8) for img in imgs)
 
     @staticmethod
-    def video(*inp: str) -> Iterable[VideoFileClip]:
-        for i in inp:
+    def video(*inputs: str) -> Iterable[VideoFileClip]:
+        for inp in inputs:
             try:
-                yield VideoFileClip(i)
+                yield VideoFileClip(inp)
             except OSError as e:
                 logger.error(str(e))
 
