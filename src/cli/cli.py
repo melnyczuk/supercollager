@@ -1,7 +1,5 @@
 from datetime import date, datetime
 
-from tqdm.std import tqdm  # type:ignore
-
 from src.adapter import Adapter
 from src.app import App
 from src.cli.save import Save
@@ -9,7 +7,7 @@ from src.constants import VALID_EXTS
 from src.logger import Logger
 
 DEFAULT_DIR = f"./dump/{date.today()}"
-DEFAULT_FNAME = f"{datetime.now()}".replace(" ", "_")
+DEFAULT_FNAME = f"{datetime.now().strftime('%Y%m%d-%H%M%S')}"
 
 
 class CLI:
@@ -53,11 +51,11 @@ class CLI:
             -shuffle: bool, whether to shuffle input images
         """
         save = Save(fname=fname, dir=dir)
-        imgs = Adapter.load(inputs)
+        imgs = Adapter.load(*inputs)
         self.logger.log("collaging images:")
-        (img,) = App.collage(tqdm(imgs), **kwargs)
-        save.jpg(img)
-        self.logger.log(f"saved to {dir}/{fname}.jpg")
+        collages = App.collage(imgs, **kwargs)
+        save.jpg(*collages)
+        self.logger.log(f"saved to {dir}/{fname}-{0}.jpg")
         return
 
     def segment(
@@ -79,11 +77,10 @@ class CLI:
             -shuffe: bool, whether to shuffle input images
         """
         save = Save(fname=fname, dir=dir)
-        imgs = Adapter.load(inputs)
+        imgs = Adapter.load(*inputs)
         self.logger.log("segmenting images:")
-        segments = App.segment(tqdm(imgs), **kwargs)
-        for idx, img in enumerate(segments):
-            save.png(img, index=idx)
+        segments = App.segment(imgs, **kwargs)
+        save.png(*segments)
         self.logger.log(f"saved to {dir}")
         return
 
@@ -104,11 +101,10 @@ class CLI:
             -fname: str, file name to save as
         """
         save = Save(fname=fname, dir=dir)
-        imgs = Adapter.load(inputs)
+        imgs = Adapter.load(*inputs)
         self.logger.log("segmenting images:")
-        masks = App.masks(tqdm(imgs))
-        for idx, img in enumerate(masks):
-            save.png(img, index=idx)
+        masks = App.masks(imgs, **kwargs)
+        save.png(*masks)
         self.logger.log(f"saved to {dir}")
         return
 
@@ -133,14 +129,12 @@ class CLI:
             -keyframe_interval: int, how often to use a keyframe
         """
         save = Save(fname=fname, dir=dir)
-        (inp,) = inputs
-        try:
-            video = Adapter.video(inp)
-        except OSError as e:
-            self.logger.error(str(e))
-        self.logger.log("segmenting video:")
-        save.mp4(App.alpha_matte(video, **kwargs), fps=video.fps)
-        video.close()
+        videos = Adapter.video(*inputs)
+        self.logger.log("segmenting videos:")
+        for video in videos:
+            alpha = App.alpha_matte(video, **kwargs)
+            save.mp4(alpha, fps=video.fps)
+            video.close()
         return
 
     def super_resolution(
@@ -162,11 +156,10 @@ class CLI:
             -fname: str, file name to save as
         """
         save = Save(fname=fname, dir=dir)
-        imgs = Adapter.load(inputs)
+        imgs = Adapter.load(*inputs)
         self.logger.log("upscaling images")
-        sr = App.super_resolution(imgs, **kwargs)
-        for i, img in enumerate(sr):
-            save.jpg(img, i)
+        supers = App.super_resolution(imgs, **kwargs)
+        save.jpg(*supers)
         self.logger.log(f"saved to {dir}")
         return
 
@@ -193,11 +186,11 @@ class CLI:
             -rotate: bool, whether to rotate alpha masks (default False)
         """
         save = Save(fname=fname, dir=dir)
-        imgs = Adapter.load(inputs)
+        imgs = Adapter.load(*inputs)
         self.logger.log("making abstract composition")
-        (abst,) = App.abstracts(imgs, **kwargs)
-        save.jpg(abst)
-        self.logger.log(f"saved to {dir}/{fname}.jpg")
+        abstracts = App.abstracts(imgs, **kwargs)
+        save.jpg(*abstracts)
+        self.logger.log(f"saved to {dir}/{fname}-{0}.jpg")
         return
 
 

@@ -7,11 +7,11 @@ from src.adapter.local_file import LocalFileAdapter
 
 class DirectoryAdapter:
     @staticmethod
-    def load(input: str) -> Iterable[BytesIO]:
-        if not os.path.isdir(input):
+    def load(inp: str) -> Iterable[BytesIO]:
+        if not os.path.isdir(inp):
             raise ValueError("input is not directory")
-        for file in os.listdir(input):
-            if not os.path.isdir(uri := os.path.join(input, file)):
+        for file in os.listdir(inp):
+            if not os.path.isdir(uri := os.path.join(inp, file)):
                 if data := LocalFileAdapter.load(uri):
                     yield data
             else:
