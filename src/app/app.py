@@ -1,5 +1,5 @@
 from random import random
-from typing import Any, Iterable, List, Tuple, Union
+from typing import Iterable, List, Tuple, Union
 
 import numpy as np
 from moviepy.video.io.VideoFileClip import VideoFileClip  # type:ignore
@@ -15,7 +15,7 @@ from src.app.super_resolution import SuperResolution
 from src.app.transform import Transform
 
 
-def shuffl(arr: Iterable[Any]) -> List[Any]:
+def shfl(arr: Iterable[np.ndarray]) -> List[np.ndarray]:
     return sorted(arr, key=lambda _: random())
 
 
@@ -38,7 +38,7 @@ class App:
         segmentation = Segmentation()
         return tqdm(
             ROI.crop(Masking.apply_mask(img=img, mask=mask, rotate=rotate))
-            for img in (shuffl(imgs) if shuffle else imgs)
+            for img in (shfl(imgs) if shuffle else imgs)
             for mask in segmentation.mask_rcnn.mask(img)
         )
 
@@ -59,31 +59,28 @@ class App:
     def super_resolution(
         imgs: Iterable[np.ndarray],
         device: str = "cuda",
+        dsize: Tuple[int, int] = (1024, 1280),
     ) -> Iterable[np.ndarray]:
         esrgan = SuperResolution.esrgan(device=device)
-        return (esrgan.run(img) for img in imgs)
+        target_size = (int(dsize[1] * 0.25), int(dsize[0] * 0.25))
+        resized = (Transform.resize(img, dsize=target_size) for img in imgs)
+        return (esrgan.run(img) for img in resized)
 
     @staticmethod
     def abstracts(
         imgs: Iterable[np.ndarray],
         color: float = 1.2,
         contrast: float = 1.2,
-        device: str = "cuda",
-        dsize: Tuple[int, int] = (80, 64),
+        dsize: Tuple[int, int] = (1024, 1280),
         limit: int = 100,
         n_segments: int = 10,
-        rotate: Union[float, bool] = False,
-        shuffle: bool = True,
-        sr_cycles: int = 0,
+        rotate: bool = False,
     ) -> Iterable[np.ndarray]:
-        rng = np.random.default_rng()
-        segments = App.segment(imgs, rotate=rotate, shuffle=shuffle)
-        limited = [x for _, x in zip(range(limit), segments)]
-        chosen = rng.choice(np.array(limited, dtype=object), n_segments)
-        resized = [Transform.resize(seg, dsize=dsize) for seg in chosen]
-        comp = Composition.layer_images(shuffl(resized))
-        for _ in range(sr_cycles):
-            (comp,) = App.super_resolution((comp,), device=device)
+        segments = App.segment(imgs, rotate=rotate, shuffle=True)
+        limited = (x for _, x in zip(range(limit), segments))
+        shuffled = (seg for seg in shfl(limited))
+        resized = (Transform.resize(seg, dsize=dsize[::-1]) for seg in shuffled)
+        comp = Composition.layer_images(shfl(resized)[:n_segments])
         return (PostProcess(comp).contrast(contrast).color(color).done(),)
 
     @staticmethod

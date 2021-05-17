@@ -8,7 +8,7 @@ from src.cli.save import Save
 from src.constants import VALID_EXTS
 from src.logger import Logger
 
-DEFAULT_DIR = f"{date.today()}"
+DEFAULT_DIR = f"./dump/{date.today()}"
 DEFAULT_FNAME = f"{datetime.now()}".replace(" ", "_")
 
 
@@ -158,6 +158,7 @@ class CLI:
         Flags:
             -device: str, torch device for GPU ("cuda") or CPU ("cpu")
             -dir: str, directory to save to
+            -dsize: tuple[int, int], target size of output image (w, h)
             -fname: str, file name to save as
         """
         save = Save(fname=fname, dir=dir)
@@ -184,15 +185,12 @@ class CLI:
         Flags:
             -color: float, post-process colour amount
             -contrast: float, post-process contrast amount
-            -device: str, torch device for GPU ("cuda") or CPU ("cpu")
             -dir: str, directory to save to
-            -dsize: tuple[int, int], target size of output image
+            -dsize: tuple[int, int], target size of output image (w, h)
             -fname: str, file name to save as
             -limit: int, how many segments to cut from input images
             -n_segments: int, how many segments to use in composition
-            -rotate: bool|float, either True (90°) or angle in deg
-            -shuffe: bool, whether to shuffle input images (default True)
-            -sr_cycles: int, how many times to upscale using ESRGAN
+            -rotate: bool, whether to rotate alpha masks (default False)
         """
         save = Save(fname=fname, dir=dir)
         imgs = Adapter.load(inputs)
