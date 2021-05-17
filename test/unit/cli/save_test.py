@@ -32,21 +32,7 @@ class SaveTestCase(TestCase):
         def saves_a_file_regardless_of_ext(fname):
             img = np.ones((2, 2, 4), dtype=np.uint8)
             Save(fname=fname, dir="./dir").png(img)
-            mock_Image_save.assert_called_with("./dir/test.png")
-
-        @each(
-            [
-                (None, "./dir/fname.png"),
-                (4, "./dir/fname-4.png"),
-            ]
-        )
-        def maybe_appends_index(params):
-            index, outpath = params
-            Save(fname="fname", dir="./dir").png(
-                np.ones((2, 2, 4), dtype=np.uint8),
-                index=index,
-            )
-            mock_Image_save.assert_called_with(outpath)
+            mock_Image_save.assert_called_with("./dir/test-0.png")
 
         @it
         def create_dir_if_dir_does_not_exist():
