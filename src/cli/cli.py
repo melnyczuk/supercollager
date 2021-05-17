@@ -50,7 +50,7 @@ class CLI:
             -dir: str, directory to save to
             -fname: str, file name to save as
             -rotate: bool|float, either True (90°) or angle in deg
-            -shuffe: bool, whether to shuffle input images
+            -shuffle: bool, whether to shuffle input images
         """
         save = Save(fname=fname, dir=dir)
         imgs = Adapter.load(inputs)
