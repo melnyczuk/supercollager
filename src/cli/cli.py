@@ -8,6 +8,9 @@ from src.cli.save import Save
 from src.constants import VALID_EXTS
 from src.logger import Logger
 
+DEFAULT_DIR = f"./dump/{date.today()}"
+DEFAULT_FNAME = f"{datetime.now()}".replace(" ", "_")
+
 
 class CLI:
     f"""
@@ -31,22 +34,26 @@ class CLI:
     def collage(
         self: "CLI",
         *inputs: str,
-        fname: str = f"{datetime.now()}".replace(" ", "_"),
-        dir: str = f"{date.today()}",
+        fname: str = DEFAULT_FNAME,
+        dir: str = DEFAULT_DIR,
         **kwargs,
-    ):
+    ) -> None:
         """
         Make a collage:
         ---
         Inputs:
             an image or images via url(s), filepath(s) or directory(s)
         Flags:
-            --dir: a directory to save to
-            --fname: a file name to save as
+            -background: int|tuple, for background colour
+            -color: float, post-process colour amount
+            -contrast: float, post-process contrast amount
+            -dir: str, directory to save to
+            -fname: str, file name to save as
+            -rotate: bool|float, either True (90°) or angle in deg
+            -shuffle: bool, whether to shuffle input images
         """
         save = Save(fname=fname, dir=dir)
-        imgs = list(Adapter.load(*inputs))
-        self.logger.log(f"loaded {len(imgs)} images")
+        imgs = Adapter.load(inputs)
         self.logger.log("collaging images:")
         (img,) = App.collage(tqdm(imgs), **kwargs)
         save.jpg(img)
@@ -56,71 +63,79 @@ class CLI:
     def segment(
         self: "CLI",
         *inputs: str,
-        fname: str = f"{datetime.now()}".replace(" ", "_"),
-        dir: str = f"{date.today()}",
+        fname: str = DEFAULT_FNAME,
+        dir: str = DEFAULT_DIR,
         **kwargs,
-    ):
+    ) -> None:
         """
         Cuts out segments:
         ---
         Inputs:
             an image or images via url(s), filepath(s) or directory(s)
         Flags:
-            --dir: a directory to save to
-            --fname: a file name to save as
+            -dir: str, directory to save to
+            -fname: str, file name to save as
+            -rotate: bool|float, either True (90°) or angle in deg
+            -shuffe: bool, whether to shuffle input images
         """
         save = Save(fname=fname, dir=dir)
-        imgs = list(Adapter.load(*inputs))
-        self.logger.log(f"loaded {len(imgs)} images")
+        imgs = Adapter.load(inputs)
         self.logger.log("segmenting images:")
         segments = App.segment(tqdm(imgs), **kwargs)
         for idx, img in enumerate(segments):
             save.png(img, index=idx)
+        self.logger.log(f"saved to {dir}")
         return
 
     def masks(
         self: "CLI",
         *inputs: str,
-        fname: str = f"{datetime.now()}".replace(" ", "_"),
-        dir: str = f"{date.today()}",
-    ):
+        fname: str = DEFAULT_FNAME,
+        dir: str = DEFAULT_DIR,
+        **kwargs,
+    ) -> None:
         """
         Generates alpha masks of segments:
         ---
         Inputs:
             an image or images via url(s), filepath(s) or directory(s)
         Flags:
-            --dir: a directory to save to
-            --fname: a file name to save as
+            -dir: str, directory to save to
+            -fname: str, file name to save as
         """
         save = Save(fname=fname, dir=dir)
-        imgs = list(Adapter.load(*inputs))
-        self.logger.log(f"loaded {len(imgs)} images")
+        imgs = Adapter.load(inputs)
         self.logger.log("segmenting images:")
         masks = App.masks(tqdm(imgs))
         for idx, img in enumerate(masks):
             save.png(img, index=idx)
+        self.logger.log(f"saved to {dir}")
         return
 
     def alpha_matte(
         self: "CLI",
-        input: str,
-        fname: str = f"{datetime.now()}".replace(" ", "_"),
-        dir: str = f"{date.today()}",
+        *inputs: str,
+        fname: str = DEFAULT_FNAME,
+        dir: str = DEFAULT_DIR,
         **kwargs,
-    ):
+    ) -> None:
         """
         Produces an alpha matte for objects in video
         ---
         Inputs:
             a video file
         Flags:
-            --dir: a directory to save to
-            --fname: a file name to save as
+            -blur: float, blur mask
+            -confidence_threshold: float, confidence for segment mask inclusion
+            -dir: str, directory to save to
+            -fname: str, file name to save as
+            -gain: float, boost mask
+            -keyframe_interval: int, how often to use a keyframe
         """
         save = Save(fname=fname, dir=dir)
+        (inp,) = inputs
         try:
-            video = Adapter.video(input)
+            video = Adapter.video(inp)
         except OSError as e:
             self.logger.error(str(e))
         self.logger.log("segmenting video:")
@@ -131,15 +146,58 @@ class CLI:
     def super_resolution(
         self: "CLI",
         *inputs: str,
-        fname: str = f"{datetime.now()}".replace(" ", "_"),
-        dir: str = f"{date.today()}",
+        fname: str = DEFAULT_FNAME,
+        dir: str = DEFAULT_DIR,
         **kwargs,
-    ):
+    ) -> None:
+        """
+        Produces an alpha matte for objects in video
+        ---
+        Inputs:
+            an image or images via url(s), filepath(s) or directory(s)
+        Flags:
+            -device: str, torch device for GPU ("cuda") or CPU ("cpu")
+            -dir: str, directory to save to
+            -dsize: tuple[int, int], target size of output image (w, h)
+            -fname: str, file name to save as
+        """
         save = Save(fname=fname, dir=dir)
-        imgs = list(Adapter.load(*inputs))
+        imgs = Adapter.load(inputs)
+        self.logger.log("upscaling images")
         sr = App.super_resolution(imgs, **kwargs)
         for i, img in enumerate(sr):
             save.jpg(img, i)
+        self.logger.log(f"saved to {dir}")
+        return
+
+    def abstract(
+        self: "CLI",
+        *inputs: str,
+        fname: str = DEFAULT_FNAME,
+        dir: str = DEFAULT_DIR,
+        **kwargs,
+    ) -> None:
+        """
+        Produces an abstract composition
+        ---
+        Inputs:
+            an image or images via url(s), filepath(s) or directory(s)
+        Flags:
+            -color: float, post-process colour amount
+            -contrast: float, post-process contrast amount
+            -dir: str, directory to save to
+            -dsize: tuple[int, int], target size of output image (w, h)
+            -fname: str, file name to save as
+            -limit: int, how many segments to cut from input images
+            -n_segments: int, how many segments to use in composition
+            -rotate: bool, whether to rotate alpha masks (default False)
+        """
+        save = Save(fname=fname, dir=dir)
+        imgs = Adapter.load(inputs)
+        self.logger.log("making abstract composition")
+        (abst,) = App.abstracts(imgs, **kwargs)
+        save.jpg(abst)
+        self.logger.log(f"saved to {dir}/{fname}.jpg")
         return
 
 

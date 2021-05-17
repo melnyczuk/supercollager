@@ -19,8 +19,13 @@ class Adapter:
         return np.array(img, dtype=np.uint8)
 
     @staticmethod
-    def load(*inputs: str, img_mode: str = "RGB") -> Iterable[np.ndarray]:
-        return (Adapter.load_one(inp, img_mode=img_mode) for inp in inputs)
+    def load(
+        inputs: Iterable[str],
+        img_mode: str = "RGB",
+    ) -> Iterable[np.ndarray]:
+        files = (file for inp in inputs for file in Adapter.__match(inp))
+        imgs = (Image.open(file).convert(img_mode) for file in files)
+        return (np.array(img, dtype=np.uint8) for img in imgs)
 
     @staticmethod
     def video(input: str) -> VideoFileClip:

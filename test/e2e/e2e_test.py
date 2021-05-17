@@ -39,8 +39,8 @@ class End2EndTestCase(TestCase):
 
         @it
         def collages():
-            image = Adapter.load(f"{data_dir}/otter.jpeg")
-            output = list(tqdm(App.collage(image)))
+            image = list(Adapter.load(f"{data_dir}/otter.jpeg"))
+            output = list(tqdm(App.collage(image, background=10)))
             _run(output, "collage.pb")
 
         @it
@@ -57,6 +57,21 @@ class End2EndTestCase(TestCase):
             )
             output = list(tqdm(App.super_resolution(image, device="cpu")))
             _run(output, "super_resolution.pb")
+
+        @it
+        def abstracts():
+            image = list(Adapter.load(f"{data_dir}/otter.jpeg"))
+            output = list(
+                tqdm(
+                    App.abstracts(
+                        image,
+                        device="cpu",
+                        limit=1,
+                        n_segments=1,
+                    )
+                )
+            )
+            _run(output, "abstracts.pb")
 
         @it
         def alpha_mattes():

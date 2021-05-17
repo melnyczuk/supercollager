@@ -1,4 +1,4 @@
-from typing import List
+from typing import Iterable, List, Tuple, Union
 
 import numpy as np
 from PIL import Image  # type: ignore
@@ -9,9 +9,12 @@ from src.app.roi import ROI
 class Composition:
     @staticmethod
     def layer_images(
-        imgs: List[np.ndarray],
-        background: int = 0,
+        imgs: Iterable[np.ndarray],
+        background: Union[None, int, Tuple[int, int, int]] = int(
+            np.random.randint(5, 15)
+        ),
     ) -> np.ndarray:
+        imgs = list(imgs)
         edge = Composition.__get_longest_edge(imgs)
         canvas = Image.new("RGBA", (edge, edge), background)
         for img in imgs:
