@@ -31,8 +31,8 @@ class ESRGAN:
     def run(self: "ESRGAN", img: np.ndarray) -> np.ndarray:
         lr = (
             torch.from_numpy(
-                np.transpose(  # type:ignore
-                    img[:, :, (2, 1, 0)],  # type:ignore
+                np.transpose(  # type: ignore
+                    img[:, :, (2, 1, 0)],  # type: ignore
                     (2, 0, 1),
                 )
                 * 1.0
@@ -49,7 +49,7 @@ class ESRGAN:
             )
 
         return (
-            np.transpose(  # type:ignore
+            np.transpose(  # type: ignore
                 output[(2, 1, 0), :, :],
                 (1, 2, 0),
             )
