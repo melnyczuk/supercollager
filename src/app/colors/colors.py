@@ -5,7 +5,7 @@ from src.app.colors.color_lookup import color_lookup
 
 ColorType = Tuple[int, int, int]
 
-colors: Tuple[ColorType] = tuple(color_lookup.values())
+colors = tuple(color_lookup.values())
 
 
 class Colors:
