@@ -53,6 +53,5 @@ class ColorsTestCase(TestCase):
         @it
         def returns_a_list_of_unique_ints():
             output = list(Colors._get_rand_indicies(self.n))
-            print(f"{output=}")
             mock_randint.assert_called()
             self.assertListEqual(list(range(self.n)), output)
