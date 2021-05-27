@@ -2,8 +2,8 @@ import os
 from typing import Iterable
 
 import numpy as np
-from moviepy.video.io.ImageSequenceClip import ImageSequenceClip  # type: ignore
-from PIL import Image  # type: ignore
+from moviepy.video.io.ImageSequenceClip import ImageSequenceClip
+from PIL import Image
 
 from src.constants import VALID_EXTS
 

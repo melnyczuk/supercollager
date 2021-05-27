@@ -1,7 +1,7 @@
 from typing import Iterable, List, Tuple, Union
 
 import numpy as np
-from PIL import Image  # type: ignore
+from PIL import Image
 
 from src.app.roi import ROI
 

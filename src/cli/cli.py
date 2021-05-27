@@ -195,6 +195,6 @@ class CLI:
 
 
 if __name__ == "__main__":
-    from fire import Fire  # type: ignore
+    from fire import Fire
 
     Fire(CLI())

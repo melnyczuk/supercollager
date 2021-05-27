@@ -5,7 +5,7 @@ from typing import Iterable
 from unittest import TestCase
 
 import numpy as np
-from PIL import Image  # type: ignore
+from PIL import Image
 
 from src.adapter import Adapter
 from src.app import App

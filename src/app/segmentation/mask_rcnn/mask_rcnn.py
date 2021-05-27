@@ -1,7 +1,7 @@
 import os
 from typing import Iterable
 
-import cv2  # type: ignore
+import cv2
 import numpy as np
 
 from .mask_box import MaskBox

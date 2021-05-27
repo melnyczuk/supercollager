@@ -1,7 +1,7 @@
 import os
 
 from flask import Flask
-from flask_cors import CORS  # type: ignore
+from flask_cors import CORS
 
 from src.logger import logger
 from src.server.celery import celery

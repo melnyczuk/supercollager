@@ -1,8 +1,8 @@
 from typing import Optional
 
-import cv2  # type: ignore
+import cv2
 import numpy as np
-from PIL import Image  # type: ignore
+from PIL import Image
 
 from src.app.region import Region
 

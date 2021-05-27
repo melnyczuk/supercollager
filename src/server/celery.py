@@ -4,8 +4,8 @@ from os import environ
 from typing import Any
 
 import numpy as np
-from celery import Celery  # type: ignore
-from kombu.serialization import register  # type: ignore
+from celery import Celery
+from kombu.serialization import register
 
 
 class DataclassJsonEncoder(json.JSONEncoder):
