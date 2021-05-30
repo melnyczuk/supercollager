@@ -14,7 +14,7 @@ def describe(test):
     return it
 
 
-def each(each=[]):
+def each(each):
     def it(test):
         test_name = test.__name__.replace("_", " ")
         each_str = "\n    ".join([str(e) for e in each])

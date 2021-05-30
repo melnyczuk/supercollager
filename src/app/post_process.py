@@ -1,6 +1,6 @@
-import cv2  # type: ignore
+import cv2
 import numpy as np
-from PIL import Image, ImageEnhance, ImageOps  # type: ignore
+from PIL import Image, ImageEnhance, ImageOps
 
 
 class PostProcess:

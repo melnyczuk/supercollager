@@ -1,39 +1,33 @@
 import random
-from typing import List, Tuple
+from typing import Iterable, List, Tuple
 
 from src.app.colors.color_lookup import color_lookup
 
 ColorType = Tuple[int, int, int]
 
+colors = tuple(color_lookup.values())
+
 
 class Colors:
     @staticmethod
     def pick() -> ColorType:
-        return list(color_lookup.values())[Colors.__randIndex()]
+        return colors[Colors.__randIndex()]
 
     @staticmethod
-    def as_list(length: int) -> List[ColorType]:
-        return [
-            list(color_lookup.values())[i]
-            for i in (
-                Colors._get_rand_indicies(length)
-                if length < len(color_lookup)
-                else Colors._get_rand_indicies(len(color_lookup))
-            )
-        ]
+    def generate(length: int) -> Iterable[ColorType]:
+        n = length if length < len(colors) else len(colors)
+        return (colors[i] for i in Colors._get_rand_indicies(n))
 
     @staticmethod
-    def _get_rand_indicies(length: int, existing: List[int] = []) -> List[int]:
-        if len(existing) == length:
-            return existing
-        else:
-            short_fall: List[int] = []
-
-            while len(short_fall) < length - len(existing):
-                if (x := Colors.__randIndex()) not in existing:
-                    short_fall.append(x)
-
-            return existing + short_fall
+    def _get_rand_indicies(
+        length: int,
+        existing: Iterable[int] = (),
+    ) -> List[int]:
+        arr = list(existing)
+        while len(arr) < length:
+            if (x := Colors.__randIndex()) not in arr:
+                arr.append(x)
+        return arr
 
     @staticmethod
     def __randIndex() -> int:

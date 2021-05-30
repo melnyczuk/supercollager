@@ -4,8 +4,8 @@ from typing import Any, Iterable
 
 import numpy as np
 import requests
-from moviepy.video.io.VideoFileClip import VideoFileClip  # type: ignore
-from PIL import Image  # type: ignore
+from moviepy.video.io.VideoFileClip import VideoFileClip
+from PIL import Image
 
 from src.adapter.directory import DirectoryAdapter
 from src.adapter.local_file import LocalFileAdapter

@@ -1,7 +1,7 @@
 from typing import Any, Optional, Tuple
 
-from celery.app.base import Celery  # type: ignore
-from celery.result import AsyncResult  # type: ignore
+from celery.app.base import Celery
+from celery.result import AsyncResult
 from flask import Blueprint, Response, request
 from flask.json import jsonify
 

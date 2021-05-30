@@ -2,8 +2,8 @@ from random import random
 from typing import Iterable, Tuple, Union
 
 import numpy as np
-from moviepy.video.io.VideoFileClip import VideoFileClip  # type:ignore
-from tqdm.std import tqdm  # type:ignore
+from moviepy.video.io.VideoFileClip import VideoFileClip
+from tqdm.std import tqdm
 
 from src.app.composition import Composition
 from src.app.keyframing import Keyframing
